@@ -38,7 +38,8 @@ public class TuioDemo : Form, TuioListener
     private Dictionary<long, TuioCursor> cursorList;
     private Dictionary<long, TuioBlob> blobList;
 
-    public static int width, height;
+
+    public static int width, height, selectedIndex = -1;
     private int window_width = Screen.PrimaryScreen.Bounds.Width;
     private int window_height = Screen.PrimaryScreen.Bounds.Height;
     private int window_left = 0;
@@ -46,18 +47,22 @@ public class TuioDemo : Form, TuioListener
     private int screen_width = Screen.PrimaryScreen.Bounds.Width;
     private int screen_height = Screen.PrimaryScreen.Bounds.Height;
 
+
     private bool fullscreen;
     private bool verbose;
 
+    private Image backgroundImage = Image.FromFile(@"bg.jpg");
     Font font = new Font("Times New Roman", 30.0f);
     SolidBrush fntBrush = new SolidBrush(Color.Black);
     SolidBrush bgrBrush = new SolidBrush(Color.FromArgb(255, 255, 64));
     SolidBrush curBrush = new SolidBrush(Color.FromArgb(192, 0, 192));
-    SolidBrush SelectedItemBrush = new SolidBrush(Color.CadetBlue);
-    SolidBrush MenuItemBrush = new SolidBrush(Color.Green);
+    SolidBrush SelectedItemBrush = new SolidBrush(Color.SeaGreen);
+    SolidBrush MenuItemBrush = new SolidBrush(Color.White);
     SolidBrush objBrush = new SolidBrush(Color.Silver);
     SolidBrush blbBrush = new SolidBrush(Color.FromArgb(64, 64, 64));
     Pen curPen = new Pen(new SolidBrush(Color.Blue), 1);
+
+    List<Point> mymenupoints = new List<Point>();
 
     Bitmap off;
     public class CActor
@@ -74,7 +79,7 @@ public class TuioDemo : Form, TuioListener
     public TuioDemo(int port)
     {
 
-        verbose = false;
+        verbose = true;
         fullscreen = false;
         width = window_width;
         height = window_height;
@@ -82,9 +87,11 @@ public class TuioDemo : Form, TuioListener
         this.ClientSize = new System.Drawing.Size(width, height);
         this.Name = "TuioDemo";
         this.Text = "TuioDemo";
+
         this.Load += TuioDemo_Load;
         this.Closing += new CancelEventHandler(Form_Closing);
         this.KeyDown += new KeyEventHandler(Form_KeyDown);
+
 
         this.SetStyle(ControlStyles.AllPaintingInWmPaint |
                         ControlStyles.UserPaint |
@@ -380,7 +387,8 @@ public class TuioDemo : Form, TuioListener
     }
     public int MenuIconWidth = 100;
     public int MenuIconHeight = 100;
-    public int CountMenuItems = 0;
+    public int CountMenuItems = 9;
+    public int selectedMenu = 1;
     public int MenuSelectedIndex = 0;
     public List<Point> generatemenu(int n)
     {
@@ -426,6 +434,8 @@ public class TuioDemo : Form, TuioListener
             else
             {
                 DrawRoundedRectangle(g, SelectedItemBrush, rect, cornerRadius);
+                selectedIndex = i;
+                this.Text = selectedIndex + "";
             }
             
         }
@@ -457,17 +467,11 @@ public class TuioDemo : Form, TuioListener
         // Getting the graphics object
         Graphics g = pevent.Graphics;
         g.FillRectangle(bgrBrush, new Rectangle(0, 0, width, height));
-
         g.Clear(Color.WhiteSmoke);
+        g.DrawImage(backgroundImage, new Rectangle(0, 0, width, height));
         SolidBrush brush = new SolidBrush(Color.White);
         System.Drawing.Pen mypen = new System.Drawing.Pen(Color.Black, 5);
 
-        //for (int i = 0; i < Background.Count; i++)
-        //{
-        //    g2.DrawImage(Background[i].img, Background[i].rcDst, Background[i].rcSrc, GraphicsUnit.Pixel);
-        //}
-
-        // draw the cursor path
         if (cursorList.Count > 0)
         {
             lock (cursorList)
@@ -501,7 +505,7 @@ public class TuioDemo : Form, TuioListener
                     int oy = tobj.getScreenY(height);
                     int size = height / 10;
 
-/*                    g.TranslateTransform(ox, oy);
+                /*  g.TranslateTransform(ox, oy);
                     g.RotateTransform((float)(tobj.Angle / Math.PI * 180.0f));
                     g.TranslateTransform(-ox, -oy);
 
@@ -513,80 +517,40 @@ public class TuioDemo : Form, TuioListener
 
                     g.DrawString(tobj.SymbolID + "", font, fntBrush, new PointF(ox - 10, oy - 10));*/
                     string objectImagePath = "";
-                    string backgroundImagePath = "";
-                    switch (tobj.SymbolID)
+                    if (tobj.SymbolID == 15)
                     {
-                        case 15:
-                            List<Point> mymenupoints = new List<Point>();
-                            CountMenuItems = 5;
-                            mymenupoints = generatemenu(CountMenuItems);
-                            MenuObjs = CreateMenuObjects(mymenupoints);
-                            checkrotation(MenuObjs, g, tobj);
-                            
-                            g = drawmenu(MenuObjs, g);
-                            
-                            break;
-                        case 2:
-                            objectImagePath = Path.Combine(Environment.CurrentDirectory, "R.png");
-                            backgroundImagePath = Path.Combine(Environment.CurrentDirectory, "Cartoon-Background-PNG-Image.png");
-                            break;
+                        mymenupoints = generatemenu(CountMenuItems);
+                        MenuObjs = CreateMenuObjects(mymenupoints);
+                        checkrotation(MenuObjs, g, tobj);
 
-                        default:
-                            // Use default rectangle for other IDs
-                            g.FillRectangle(objBrush, new Rectangle(ox - size / 2, oy - size / 2, size, size));
-                            g.DrawString(tobj.SymbolID + "", font, fntBrush, new PointF(ox - 10, oy - 10));
-                            continue;
+                        g = drawmenu(MenuObjs, g);
                     }
-
-                /*    try
+                    else
                     {
-                        // Draw background image without rotation
-                        if (File.Exists(backgroundImagePath))
+                        g.FillRectangle(objBrush, new Rectangle(ox - size / 2, oy - size / 2, size, size));
+                        g.DrawString(tobj.SymbolID + "", font, fntBrush, new PointF(ox - 10, oy - 10));
+                    }
+                    foreach (TuioObject obj1 in objectList.Values)
+                    {
+                        foreach (TuioObject obj2 in objectList.Values)
                         {
-                            using (Image bgImage = Image.FromFile(backgroundImagePath))
+
+                            if (obj1 != obj2 && AreObjectsIntersecting(obj1, obj2))
                             {
-                                g.DrawImage(bgImage, new Rectangle(new Point(0, 0), new Size(width, height)));
+                                switch (selectedIndex)
+                                {
+                                    case 0:
+                                        CountMenuItems = 6;
+                                        break;
+                                    case 1:
+                                        CountMenuItems = 4;
+                                        break;
+                                }
                             }
                         }
-                        else
-                        {
-                            Console.WriteLine($"Background image not found: {backgroundImagePath}");
-                        }
-
-                        // Draw object image with rotation
-                        if (File.Exists(objectImagePath))
-                        {
-                            using (Image objectImage = Image.FromFile(objectImagePath))
-                            {
-                                // Save the current state of the graphics object
-                                GraphicsState state = g.Save();
-
-                                // Apply transformations for rotation
-                                g.TranslateTransform(ox, oy);
-                                g.RotateTransform((float)(tobj.Angle / Math.PI * 180.0f));
-                                g.TranslateTransform(-ox, -oy);
-
-                                // Draw the rotated object
-                                g.DrawImage(objectImage, new Rectangle(ox - size / 2, oy - size / 2, size, size));
-
-                                // Restore the graphics state
-                                g.Restore(state);
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine($"Object image not found: {objectImagePath}");
-                            // Fall back to drawing a rectangle
-                            g.FillRectangle(objBrush, new Rectangle(ox - size / 2, oy - size / 2, size, size));
-                        }
                     }
-                    catch
-                    {
-
-                    }*/
                 }
             }
-
         }
 
 
@@ -633,6 +597,22 @@ public class TuioDemo : Form, TuioListener
         }
 
     }
+    public bool AreObjectsIntersecting(TuioObject obj1, TuioObject obj2)
+    {
+        int obj1X = obj1.getScreenX(width);
+        int obj1Y = obj1.getScreenY(height);
+        int obj1Size = 260; 
+
+        int obj2X = obj2.getScreenX(width);
+        int obj2Y = obj2.getScreenY(height);
+        int obj2Size = 100; 
+
+        //this.Text = "(" + obj1X + " , " + obj1Y + ") (" + obj2X + " , " + obj2Y + ") " + "Size: " + obj1Size;
+
+        return obj1X < obj2X + obj2Size && obj1X + obj1Size > obj2X &&
+               obj1Y < obj2Y + obj2Size && obj1Y + obj1Size > obj2Y && (obj1.SymbolID == 15 || obj2.SymbolID == 15);
+    }
+
     public static void Main(String[] argv)
     {
         int port = 0;
