@@ -30,6 +30,9 @@ using NAudio.Wave;
 using System.Drawing.Drawing2D;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrayNotify;
 using System.Text.RegularExpressions;
+using System.Net.Sockets;
+using System.Text;
+using System.Threading.Tasks;
 
 public class TuioDemo : Form, TuioListener
 {
@@ -462,9 +465,52 @@ public class TuioDemo : Form, TuioListener
         }
         return objs;
     }
+
+    private async void getTeethData(string symbolId)
+    {
+        try
+        {
+            using (TcpClient client = new TcpClient("localhost", 65434))
+            {
+                client.ReceiveTimeout = 2000;
+                client.SendTimeout = 2000;
+                using (NetworkStream stream = client.GetStream())
+                {
+                    byte[] data = new byte[2048]; 
+                    int bytesRead = await stream.ReadAsync(data, 0, data.Length); 
+
+                    if (bytesRead > 0)
+                    {
+                        // Deserialize the received message
+                        string receivedMessage = Encoding.UTF8.GetString(data, 0, bytesRead);
+                        this.Text = receivedMessage;
+                        Console.WriteLine("Received message from server: " + receivedMessage);
+                    }
+                }
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            Console.WriteLine("Request canceled.");
+        }
+        catch (SocketException se)
+        {
+            Console.WriteLine("Socket error: " + se.Message);
+        }
+        catch (TimeoutException te)
+        {
+            Console.WriteLine("Timeout: " + te.Message);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error: " + ex.Message);
+        }
+    }
+
     protected override void OnPaintBackground(PaintEventArgs pevent)
     {
         // Getting the graphics object
+        getTeethData("15");
         Graphics g = pevent.Graphics;
         g.FillRectangle(bgrBrush, new Rectangle(0, 0, width, height));
         g.Clear(Color.WhiteSmoke);
