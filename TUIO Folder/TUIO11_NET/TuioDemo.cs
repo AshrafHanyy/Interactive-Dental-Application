@@ -33,6 +33,8 @@ using System.Text.RegularExpressions;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+//using Dental3DViewer; // Namespace of your WPF project
 
 public class TuioDemo : Form, TuioListener
 {
@@ -66,6 +68,8 @@ public class TuioDemo : Form, TuioListener
     Pen curPen = new Pen(new SolidBrush(Color.Blue), 1);
 
     List<Point> mymenupoints = new List<Point>();
+    //var viewerControl = new Dental3DViewerControl();
+    //elementHost1.Child = viewerControl;
 
     Bitmap off;
     public class CActor
@@ -466,51 +470,69 @@ public class TuioDemo : Form, TuioListener
         return objs;
     }
 
-    private async void getTeethData(string symbolId)
+    private async Task<string> getTeethData(string symbolId)
     {
         try
         {
-            using (TcpClient client = new TcpClient("localhost", 65434))
+            using (TcpClient client = new TcpClient("localhost", 5000))
             {
                 client.ReceiveTimeout = 2000;
                 client.SendTimeout = 2000;
                 using (NetworkStream stream = client.GetStream())
                 {
-                    byte[] data = new byte[2048]; 
-                    int bytesRead = await stream.ReadAsync(data, 0, data.Length); 
+                    byte[] dataToSend = Encoding.ASCII.GetBytes(symbolId);
+                    await stream.WriteAsync(dataToSend, 0, dataToSend.Length);
 
-                    if (bytesRead > 0)
+                    byte[] dataToReceive = new byte[4096];
+                    int bytesRead = await stream.ReadAsync(dataToReceive, 0, dataToReceive.Length);
+                    string responseData = Encoding.ASCII.GetString(dataToReceive, 0, bytesRead);
+
+                    var patientInfo = JsonConvert.DeserializeObject<Dictionary<string, object>>(responseData);
+                    Console.WriteLine(patientInfo["image"]);
+
+                    if (patientInfo != null && patientInfo.ContainsKey("image"))
                     {
-                        // Deserialize the received message
-                        string receivedMessage = Encoding.UTF8.GetString(data, 0, bytesRead);
-                        this.Text = receivedMessage;
-                        Console.WriteLine("Received message from server: " + receivedMessage);
+                        string imageUrlOrBase64 = patientInfo["image"].ToString();
+                        //await DisplayPatientImageAsync(imageUrlOrBase64);
                     }
+
+                    return responseData;
                 }
+
+
             }
         }
         catch (OperationCanceledException)
         {
             Console.WriteLine("Request canceled.");
+            return null;
         }
         catch (SocketException se)
         {
             Console.WriteLine("Socket error: " + se.Message);
+            return null;
         }
         catch (TimeoutException te)
         {
             Console.WriteLine("Timeout: " + te.Message);
+            return null;
+        }
+        catch (JsonException je)
+        {
+            Console.WriteLine("JSON error: " + je.Message);
+            return null;
         }
         catch (Exception ex)
         {
             Console.WriteLine("Error: " + ex.Message);
+            return null;
         }
     }
 
     protected override void OnPaintBackground(PaintEventArgs pevent)
     {
         // Getting the graphics object
-        getTeethData("15");
+        //getTeethData("15");
         Graphics g = pevent.Graphics;
         g.FillRectangle(bgrBrush, new Rectangle(0, 0, width, height));
         g.Clear(Color.WhiteSmoke);
