@@ -7,3 +7,14 @@ C:\Users\ashra\Downloads\TUIO Folder\TUIO11_NET-1.1.5\TUIO11_NET\obj\Debug\TuioD
 C:\Users\ashra\Downloads\TUIO Folder\TUIO11_NET-1.1.5\TUIO11_NET\bin\Debug\NAudio.dll
 C:\Users\ashra\Downloads\TUIO Folder\TUIO11_NET-1.1.5\TUIO11_NET\bin\Debug\NAudio.xml
 C:\Users\ashra\Downloads\TUIO Folder\TUIO11_NET-1.1.5\TUIO11_NET\obj\Debug\TUIO_DEMO.csproj.CopyComplete
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\obj\Debug\TUIO_DEMO.csproj.AssemblyReference.cache
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\obj\Debug\TUIO_DEMO.csproj.CoreCompileInputs.cache
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\obj\Debug\TuioDemo.exe
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\obj\Debug\TuioDemo.pdb
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\bin\Debug\TuioDemo.exe
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\bin\Debug\TuioDemo.pdb
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\bin\Debug\NAudio.dll
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\bin\Debug\NAudio.xml
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\obj\Debug\TUIO_DEMO.csproj.CopyComplete
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\obj\Debug\TuioDemo.resources
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\obj\Debug\TUIO_DEMO.csproj.GenerateResource.cache

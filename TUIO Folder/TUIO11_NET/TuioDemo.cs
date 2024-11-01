@@ -33,7 +33,7 @@ using System.Text.RegularExpressions;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
+//using Newtonsoft.Json;
 //using Dental3DViewer; // Namespace of your WPF project
 
 public class TuioDemo : Form, TuioListener
@@ -56,7 +56,8 @@ public class TuioDemo : Form, TuioListener
     private bool fullscreen;
     private bool verbose;
 
-    private Image backgroundImage = Image.FromFile(@"bg.jpg");
+    private Image backgroundImage = Image.FromFile(@"BG_3.jpg");
+    private Image backgroundImage2 = Image.FromFile(@"bg.jpg");
     Font font = new Font("Times New Roman", 30.0f);
     SolidBrush fntBrush = new SolidBrush(Color.Black);
     SolidBrush bgrBrush = new SolidBrush(Color.FromArgb(255, 255, 64));
@@ -68,6 +69,8 @@ public class TuioDemo : Form, TuioListener
     Pen curPen = new Pen(new SolidBrush(Color.Blue), 1);
 
     List<Point> mymenupoints = new List<Point>();
+  
+
     //var viewerControl = new Dental3DViewerControl();
     //elementHost1.Child = viewerControl;
 
@@ -92,8 +95,15 @@ public class TuioDemo : Form, TuioListener
         height = window_height;
             
         this.ClientSize = new System.Drawing.Size(width, height);
-        this.Name = "TuioDemo";
-        this.Text = "TuioDemo";
+        this.Name = "Crown Preparation Application"; 
+        this.Name = "Crown Preparations Interactive App";
+        //Button button = new Button();
+        //button.Text = "START";
+        //button.FlatAppearance.Equals(FlatStyle.Flat);
+        //button.Location.X.Equals(this.ClientSize.Width / 2);
+        //button.Location.Y.Equals(this.ClientSize.Height / 2);
+        //button.Visible = true;
+        //button.Enabled = true;
 
         this.Load += TuioDemo_Load;
         this.Closing += new CancelEventHandler(Form_Closing);
@@ -110,7 +120,7 @@ public class TuioDemo : Form, TuioListener
 
         client = new TuioClient(port);
         client.addTuioListener(this);
-
+        
         client.connect();
     }
 
@@ -119,6 +129,7 @@ public class TuioDemo : Form, TuioListener
 /*        string audiofilepath = ("01 - Track 01.mp3");
         PlayBackgroundMusic(audiofilepath);*/
         off = new Bitmap(this.ClientSize.Width, this.ClientSize.Height);
+        this.InitializeComponent();
     }
 
     private void Form_KeyDown(object sender, System.Windows.Forms.KeyEventArgs e)
@@ -205,7 +216,7 @@ public class TuioDemo : Form, TuioListener
     public int menuMarker = 15; 
     private bool hasPlayedSound = false;
     // Declare a threshold for rotation change (adjust based on your use case)
-    private double rotationThreshold = 15f;  // Example: 15-degree change
+    private double rotationThreshold = 10f;  // Example: 15-degree change
     private double previousRotationAngle = 0f;
 
     public void checkrotation(List<CActor> objs,Graphics g, TuioObject o )
@@ -229,7 +240,7 @@ public class TuioDemo : Form, TuioListener
             int newMenuIndex = (int)Math.Floor(angleDegrees / anglePerItem) % CountMenuItems;
 
             // Update the menu selection only if the new index is different from the current one
-            if (newMenuIndex != MenuSelectedIndex)
+            if (newMenuIndex != MenuSelectedIndex )
             {
                 if (MenuSelectedIndex >= 0 && MenuSelectedIndex < CountMenuItems)
                 {
@@ -242,21 +253,19 @@ public class TuioDemo : Form, TuioListener
                     MenuObjs[newMenuIndex].color = 1;
                    // Select new menu item
                 }
-                if (rotationDifference > rotationThreshold)
-                {
+               
                     // If the icon has significantly rotated and sound hasn't been played
-                    if (!hasPlayedSound)
+                    if (!hasPlayedSound && rotationDifference > rotationThreshold)
                     {
-                        PlaySoundEffect("menusound.mp3");
+                        PlaySoundEffect("menusound_swipe.mp3");
                         hasPlayedSound = true;  // Set the flag to prevent repeated plays
 
                     }
-                }
-                else
-                {
+                 else
+                 {
                     // If the rotation is not significant, reset the flag
                     hasPlayedSound = false;
-                }
+                 }
 
                 // Update the selected menu index
                 MenuSelectedIndex = newMenuIndex;
@@ -393,10 +402,10 @@ public class TuioDemo : Form, TuioListener
         Invalidate();
     }
     public int MenuIconWidth = 100;
-    public int MenuIconHeight = 100;
-    public int CountMenuItems = 9;
-    public int selectedMenu = 1;
+    public int MenuIconHeight = 150;
+    public int CountMenuItems = 2;
     public int MenuSelectedIndex = 0;
+    List<CActor> MenuObjs = new List<CActor>();
     public List<Point> generatemenu(int n)
     {
         MenuSelectedIndex = n-1;
@@ -427,120 +436,208 @@ public class TuioDemo : Form, TuioListener
 
         return myicons;
     }
-
-    public Graphics drawmenu(List<CActor> menuobjs, Graphics g)
-    {
-        int cornerRadius = 10;
-        for (int i = 0; i < menuobjs.Count; i++)
-        {
-            Rectangle rect = new Rectangle(menuobjs[i].X, menuobjs[i].Y, menuobjs[i].W, menuobjs[i].H);
-            if (menuobjs[i].color == 0)
-            {
-                DrawRoundedRectangle(g, MenuItemBrush, rect, cornerRadius);
-            }
-            else
-            {
-                DrawRoundedRectangle(g, SelectedItemBrush, rect, cornerRadius);
-                selectedIndex = i;
-                this.Text = selectedIndex + "";
-            }
-            
-        }
-        return g;
-    }
-    List<CActor> MenuObjs = new List<CActor>();
     public List<CActor> CreateMenuObjects(List<Point> points)
     {
-        List <CActor> objs = new List<CActor>();
+        int padding = 20;
+        int availableWidth = ClientSize.Width - (padding * 4);
+        int maxWidth = availableWidth / CountMenuItems;
+
+        List<CActor> objs = new List<CActor>();
+
         for (int i = 0; i < points.Count; i++)
         {
             CActor obj = new CActor();
-            obj.X = points[i].X;
-            obj.Y = points[i].Y;
-            obj.W = MenuIconWidth;
-            obj.H = MenuIconHeight;
-            obj.color = 0;
-            if(i == MenuSelectedIndex)
-            {
-                obj.color = 1;
-            }
-            objs.Add(obj);  
 
+            // Adjust width based on the number of items
+            obj.W = maxWidth;
+            obj.H = MenuIconHeight;
+
+            // Center the rectangle horizontally with padding on each side
+            obj.X = ClientSize.Width / 2 - (CountMenuItems * maxWidth) / 2 + i * (maxWidth + padding);
+            obj.Y = ClientSize.Height / 2 - MenuIconHeight / 2;
+
+            // Highlight selected menu item
+            obj.color = (i == MenuSelectedIndex) ? 1 : 0;
+            objs.Add(obj);
         }
         return objs;
     }
 
-    private async Task<string> getTeethData(string symbolId)
+    public Graphics drawmenu(List<CActor> menuobjs, Graphics g)
     {
-        try
+        int cornerRadius = 10;
+        int padding = 10;
+
+        // Set a base font and adjust only once if needed
+        Font subFont = new Font("Segoe UI", 16, FontStyle.Bold);
+        SolidBrush textBrush = new SolidBrush(Color.Black);
+
+        for (int i = 0; i < menuobjs.Count; i++)
         {
-            using (TcpClient client = new TcpClient("localhost", 5000))
+            Rectangle rect = new Rectangle(menuobjs[i].X, menuobjs[i].Y, menuobjs[i].W, menuobjs[i].H);
+
+            // Draw background of menu items
+            DrawRoundedRectangle(g, (menuobjs[i].color == 0) ? MenuItemBrush : SelectedItemBrush, rect, cornerRadius);
+
+            // Define text based on menu item
+            if(SelectedMenuFlag == 0)
             {
-                client.ReceiveTimeout = 2000;
-                client.SendTimeout = 2000;
-                using (NetworkStream stream = client.GetStream())
-                {
-                    byte[] dataToSend = Encoding.ASCII.GetBytes(symbolId);
-                    await stream.WriteAsync(dataToSend, 0, dataToSend.Length);
+                string itemText = (i == 0) ? "Extracoronal \r\n restorations" : "Intracoronal \r\n restorations";
 
-                    byte[] dataToReceive = new byte[4096];
-                    int bytesRead = await stream.ReadAsync(dataToReceive, 0, dataToReceive.Length);
-                    string responseData = Encoding.ASCII.GetString(dataToReceive, 0, bytesRead);
+                // Center text inside rectangle with adjusted format
+                StringFormat format = new StringFormat();
+                format.Alignment = StringAlignment.Center;
+                format.LineAlignment = StringAlignment.Center;
 
-                    var patientInfo = JsonConvert.DeserializeObject<Dictionary<string, object>>(responseData);
-                    Console.WriteLine(patientInfo["image"]);
-
-                    if (patientInfo != null && patientInfo.ContainsKey("image"))
-                    {
-                        string imageUrlOrBase64 = patientInfo["image"].ToString();
-                        //await DisplayPatientImageAsync(imageUrlOrBase64);
-                    }
-
-                    return responseData;
-                }
-
+                g.DrawString(itemText, subFont, textBrush, rect, format);
 
             }
+            else
+            {
+                string itemText = (i == 0) ? "Test \r\n restorations" : "Test 2 \r\n restorations";
+
+                // Center text inside rectangle with adjusted format
+                StringFormat format = new StringFormat();
+                format.Alignment = StringAlignment.Center;
+                format.LineAlignment = StringAlignment.Center;
+
+                g.DrawString(itemText, subFont, textBrush, rect, format);
+
+            }
+
+
         }
-        catch (OperationCanceledException)
-        {
-            Console.WriteLine("Request canceled.");
-            return null;
-        }
-        catch (SocketException se)
-        {
-            Console.WriteLine("Socket error: " + se.Message);
-            return null;
-        }
-        catch (TimeoutException te)
-        {
-            Console.WriteLine("Timeout: " + te.Message);
-            return null;
-        }
-        catch (JsonException je)
-        {
-            Console.WriteLine("JSON error: " + je.Message);
-            return null;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("Error: " + ex.Message);
-            return null;
-        }
+
+        return g;
     }
 
+
+
+    /*    private async Task<string> getTeethData(string symbolId)
+        {
+            try
+            {
+                using (TcpClient client = new TcpClient("localhost", 5000))
+                {
+                    client.ReceiveTimeout = 2000;
+                    client.SendTimeout = 2000;
+                    using (NetworkStream stream = client.GetStream())
+                    {
+                        byte[] dataToSend = Encoding.ASCII.GetBytes(symbolId);
+                        await stream.WriteAsync(dataToSend, 0, dataToSend.Length);
+
+                        byte[] dataToReceive = new byte[4096];
+                        int bytesRead = await stream.ReadAsync(dataToReceive, 0, dataToReceive.Length);
+                        string responseData = Encoding.ASCII.GetString(dataToReceive, 0, bytesRead);
+
+                        var patientInfo = JsonConvert.DeserializeObject<Dictionary<string, object>>(responseData);
+                        Console.WriteLine(patientInfo["image"]);
+
+                        if (patientInfo != null && patientInfo.ContainsKey("image"))
+                        {
+                            string imageUrlOrBase64 = patientInfo["image"].ToString();
+                            //await DisplayPatientImageAsync(imageUrlOrBase64);
+                        }
+
+                        return responseData;
+                    }
+
+
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                Console.WriteLine("Request canceled.");
+                return null;
+            }
+            catch (SocketException se)
+            {
+                Console.WriteLine("Socket error: " + se.Message);
+                return null;
+            }
+            catch (TimeoutException te)
+            {
+                Console.WriteLine("Timeout: " + te.Message);
+                return null;
+            }
+            catch (JsonException je)
+            {
+                Console.WriteLine("JSON error: " + je.Message);
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+                return null;
+            }
+        }
+    */
+    public int mainmenuflag = 1;
+    public int SelectedMenuFlag = 0;
     protected override void OnPaintBackground(PaintEventArgs pevent)
     {
         // Getting the graphics object
         //getTeethData("15");
+        
         Graphics g = pevent.Graphics;
-        g.FillRectangle(bgrBrush, new Rectangle(0, 0, width, height));
+        //g.FillRectangle(bgrBrush, new Rectangle(0, 0, width, height));
         g.Clear(Color.WhiteSmoke);
-        g.DrawImage(backgroundImage, new Rectangle(0, 0, width, height));
+
+        ////////////////////////////////////////////////////
+        ///////////////////////
+        // Define the rectangle for the title text
+        Font titleFont = new Font("Segoe UI", 35, FontStyle.Bold);
+        SolidBrush textBrush = new SolidBrush(Color.Black);
+
+        // Define the dimensions and position for the semi-transparent rounded rectangle
+        int boxWidth = 700; // Adjust width as needed
+        int boxHeight = 200; // Adjust height as needed
+        int boxX = (this.window_width / 2) - (boxWidth / 2);
+        int boxY = this.ClientRectangle.Top + 20;
+
+        // Create a semi-transparent white brush
+        SolidBrush boxBrush = new SolidBrush(Color.FromArgb(150, Color.White));
+
+        // Draw the rounded rectangle
+        GraphicsPath roundedRectPath = new GraphicsPath();
+        int cornerRadius = 20;
+        roundedRectPath.AddArc(boxX, boxY, cornerRadius, cornerRadius, 180, 90);
+        roundedRectPath.AddArc(boxX + boxWidth - cornerRadius, boxY, cornerRadius, cornerRadius, 270, 90);
+        roundedRectPath.AddArc(boxX + boxWidth - cornerRadius, boxY + boxHeight - cornerRadius, cornerRadius, cornerRadius, 0, 90);
+        roundedRectPath.AddArc(boxX, boxY + boxHeight - cornerRadius, cornerRadius, cornerRadius, 90, 90);
+        roundedRectPath.CloseFigure();
+        ///////////////////////
+        ////////////////////////////////////////////////////
+
         SolidBrush brush = new SolidBrush(Color.White);
         System.Drawing.Pen mypen = new System.Drawing.Pen(Color.Black, 5);
+        Font f = new Font("Calibri", 35, FontStyle.Bold);
+        if (mainmenuflag == 1)
+        {
+            // g.FillRectangle(bgrBrush, new Rectangle(0, 0, width, height));
+           
+            g.DrawImage(backgroundImage, new Rectangle(0, 0, width, height));
+            g.FillPath(boxBrush, roundedRectPath);
+            RectangleF textRect = new RectangleF(boxX + 10, boxY + 10, boxWidth - 20, boxHeight - 20);
 
-        if (cursorList.Count > 0)
+            // Create a StringFormat for centered alignment
+            StringFormat format = new StringFormat
+            {
+                Alignment = StringAlignment.Center,      // Center horizontally
+                LineAlignment = StringAlignment.Center   // Center vertically
+            };
+            g.DrawString("Interactive Application for Crown Preparation Learners", titleFont, textBrush, textRect, format);
+            mainmenuflag= checkmainmenu();
+            if(mainmenuflag == 2)
+            {
+                this.Controls.Remove(mainMenuButton);
+                this.mainMenuButton.Dispose();
+            }
+        }
+        else if(mainmenuflag == 2)
+        {
+            g.DrawImage(backgroundImage2, new Rectangle(0, 0, width, height));
+            if (cursorList.Count > 0)
         {
             lock (cursorList)
             {
@@ -573,17 +670,7 @@ public class TuioDemo : Form, TuioListener
                     int oy = tobj.getScreenY(height);
                     int size = height / 10;
 
-                /*  g.TranslateTransform(ox, oy);
-                    g.RotateTransform((float)(tobj.Angle / Math.PI * 180.0f));
-                    g.TranslateTransform(-ox, -oy);
-
-                    g.FillRectangle(objBrush, new Rectangle(ox - size / 2, oy - size / 2, size, size));
-
-                    g.TranslateTransform(ox, oy);
-                    g.RotateTransform(-1 * (float)(tobj.Angle / Math.PI * 180.0f));
-                    g.TranslateTransform(-ox, -oy);
-
-                    g.DrawString(tobj.SymbolID + "", font, fntBrush, new PointF(ox - 10, oy - 10));*/
+               
                     string objectImagePath = "";
                     if (tobj.SymbolID == 15)
                     {
@@ -592,23 +679,30 @@ public class TuioDemo : Form, TuioListener
                         checkrotation(MenuObjs, g, tobj);
 
                         g = drawmenu(MenuObjs, g);
-                    }
-                    else
-                    {
-                        g.FillRectangle(objBrush, new Rectangle(ox - size / 2, oy - size / 2, size, size));
-                        g.DrawString(tobj.SymbolID + "", font, fntBrush, new PointF(ox - 10, oy - 10));
+                        
+
                     }
                     foreach (TuioObject obj1 in objectList.Values)
                     {
                         foreach (TuioObject obj2 in objectList.Values)
                         {
 
-                            if (obj1 != obj2 && AreObjectsIntersecting(obj1, obj2))
+                            if (obj1.SymbolID == 15 && obj2.SymbolID == 12 && AreObjectsIntersecting(obj1,obj2))
                             {
-                                switch (selectedIndex)
+
+                                switch (SelectedMenuFlag)
                                 {
                                     case 0:
-                                        CountMenuItems = 6;
+                                            if (MenuSelectedIndex == 0)
+                                            {
+                                                CountMenuItems = 2;
+                                                SelectedMenuFlag = 1;
+                                            }
+                                            else
+                                            {
+                                                CountMenuItems = 1;
+                                                SelectedMenuFlag = 2;
+                                            }
                                         break;
                                     case 1:
                                         CountMenuItems = 4;
@@ -648,11 +742,48 @@ public class TuioDemo : Form, TuioListener
                 }
             }
         }
-
+        }
 
 
 
     }
+
+    public int checkmainmenu()
+    {
+        if (objectList.Count > 0)
+        {
+            lock (objectList)
+            {
+                foreach (TuioObject tobj in objectList.Values)
+                {
+                    int ox = tobj.getScreenX(width);
+                    int oy = tobj.getScreenY(height);
+                    int size = height / 10;
+
+                    /*  g.TranslateTransform(ox, oy);
+                        g.RotateTransform((float)(tobj.Angle / Math.PI * 180.0f));
+                        g.TranslateTransform(-ox, -oy);
+
+                        g.FillRectangle(objBrush, new Rectangle(ox - size / 2, oy - size / 2, size, size));
+
+                        g.TranslateTransform(ox, oy);
+                        g.RotateTransform(-1 * (float)(tobj.Angle / Math.PI * 180.0f));
+                        g.TranslateTransform(-ox, -oy);
+
+                        g.DrawString(tobj.SymbolID + "", font, fntBrush, new PointF(ox - 10, oy - 10));*/
+                    string objectImagePath = "";
+                    if (tobj.SymbolID == 12)
+                    {
+                        return 2;
+                    }
+                 
+                }
+            }
+        }
+        return 1;
+
+    }
+
     void DrawDubb(Graphics g)
     {
         using (Graphics g2 = Graphics.FromImage(off))
@@ -665,6 +796,48 @@ public class TuioDemo : Form, TuioListener
         }
 
     }
+    private Button mainMenuButton;
+    private void InitializeComponent()
+    {
+        this.DoubleBuffered= true;
+        // 
+        // buttonRJ1
+        // 
+        // 
+        // TuioDemo
+        // 
+        //this.ClientSize = new System.Drawing.Size(1344, 709);
+
+
+        this.Text = "Crown Preparations Interactive App";
+        mainMenuButton = new Button();
+        mainMenuButton.Size = new Size(350, 100);
+        mainMenuButton.Text = "START"; mainMenuButton.Font = new Font("Calibri", 35, FontStyle.Bold);
+        mainMenuButton.ForeColor = Color.White;
+
+        mainMenuButton.FlatAppearance.Equals(FlatStyle.Flat);
+        mainMenuButton.Location = new Point((screen_width / 2 )- (350/2), (screen_height / 2) - (50));
+        mainMenuButton.TabIndex = 1;
+        mainMenuButton.BackColor= Color.Transparent; // Set the desired location
+        mainMenuButton.Click += new EventHandler(MainMenuButton_Click);
+
+        // Add the button to the form only if mainmenuflag == 1
+        if (mainmenuflag == 1)
+        {
+            this.Controls.Add(mainMenuButton);
+        }
+
+    }
+
+    private void MainMenuButton_Click(object sender, EventArgs e)
+    {
+
+        mainmenuflag = 2;
+
+        this.Controls.Remove(mainMenuButton);
+        this.mainMenuButton.Dispose();
+    }
+
     public bool AreObjectsIntersecting(TuioObject obj1, TuioObject obj2)
     {
         int obj1X = obj1.getScreenX(width);
