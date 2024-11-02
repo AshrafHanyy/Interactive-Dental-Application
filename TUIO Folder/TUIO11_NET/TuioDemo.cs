@@ -366,76 +366,11 @@ public class TuioDemo : Form, TuioListener
         }
         if (verbose) Console.WriteLine("del blb " + b.BlobID + " (" + b.SessionID + ")");
     }
-    public static List<string> imagePaths = new List<string>();
-    public int SelectedMenuFlag = 0;
-    public void DrawRoundedRectangle(Graphics g, Brush brush, Rectangle rect, int radius, int index)
-    {
-        using (GraphicsPath path = new GraphicsPath())
-        {
-            float diameter = radius * 2f;
-            SizeF sizeF = new SizeF(diameter, diameter);
-            RectangleF arc = new RectangleF(rect.Location, sizeF);
-
-            // Add rounded corners
-            path.AddArc(arc, 180, 90);
-            arc.X = rect.Right - diameter;
-            path.AddArc(arc, 270, 90);
-            arc.Y = rect.Bottom - diameter;
-            path.AddArc(arc, 0, 90);
-            arc.X = rect.Left;
-            path.AddArc(arc, 90, 90);
-            path.CloseFigure();
-
-            // Draw the rounded rectangle background
-            g.FillPath(brush, path);
-
-            // Draw the image only if SelectedMenuFlag > 1
-            if (SelectedMenuFlag > 1 && imagePaths.Count > index)
-            {
-                try
-                {
-                    using (Image image = Image.FromFile(imagePaths[index]))
-                    {
-                        // Calculate the aspect ratio of the image and the destination rectangle
-                        float imageAspectRatio = (float)image.Width / image.Height;
-                        float rectAspectRatio = (float)rect.Width / rect.Height;
-
-                        int destWidth, destHeight;
-
-                        // Scale the image to fit within the destination rectangle while maintaining the aspect ratio
-                        if (imageAspectRatio > rectAspectRatio)
-                        {
-                            destWidth = rect.Width;
-                            destHeight = (int)(rect.Width / imageAspectRatio);
-                        }
-                        else
-                        {
-                            destHeight = rect.Height;
-                            destWidth = (int)(rect.Height * imageAspectRatio);
-                        }
-
-                        // Calculate the position to center the image within the rectangle
-                        int destX = rect.X + (rect.Width - destWidth) / 2;
-                        int destY = rect.Y + (rect.Height - destHeight) / 2;
-                        Rectangle destRect = new Rectangle(destX, destY, destWidth, destHeight);
-
-                        // Clip to the rounded rectangle path and draw the image centered and scaled
-                        Region originalClip = g.Clip;
-                        g.SetClip(path, CombineMode.Replace);
-                        g.DrawImage(image, destRect);
-                        g.Clip = originalClip;
-                    }
-                }
-                catch (FileNotFoundException)
-                {
-                    MessageBox.Show("Image file not found: " + imagePaths[index]);
-                }
-            }
-        }
-    }
-
-
-    public void refresh(TuioTime frameTime)
+    public static List<string> imagePaths = new List<string>{
+                                                          @"./Crown Dental APP/2d illustrations/All ceramic crown preparation.png",
+                                                        @"./Crown Dental APP/2d illustrations/Full veneer crown.png",
+                                                        };
+    public int SelectedMenuFlag = 3;  public void refresh(TuioTime frameTime)
     {
         Invalidate();
     }
@@ -444,35 +379,103 @@ public class TuioDemo : Form, TuioListener
     public int CountMenuItems = 2;
     public int MenuSelectedIndex = 0; //item selection
     List<CActor> MenuObjs = new List<CActor>();
-    public List<Point> generatemenu(int n) //generate points
+    public void DrawRoundedRectangle(Graphics g, Brush brush, Rectangle rect, int radius, int index)
     {
-        MenuSelectedIndex = n-1;
-        List<Point> myicons = new List<Point>();
+        using (GraphicsPath path = CreateRoundedRectanglePath(rect, radius))
+        {
+            // Draw the rounded rectangle background
+            g.FillPath(brush, path);
+            DrawImageIfSelected(g, index, path, rect);
+        }
+    }
 
-        // Define the center of the circular menu
+    private GraphicsPath CreateRoundedRectanglePath(Rectangle rect, int radius)
+    {
+        GraphicsPath path = new GraphicsPath();
+        float diameter = radius * 2f;
+        SizeF sizeF = new SizeF(diameter, diameter);
+        RectangleF arc = new RectangleF(rect.Location, sizeF);
+
+        path.AddArc(arc, 180, 90);
+        arc.X = rect.Right - diameter;
+        path.AddArc(arc, 270, 90);
+        arc.Y = rect.Bottom - diameter;
+        path.AddArc(arc, 0, 90);
+        arc.X = rect.Left;
+        path.AddArc(arc, 90, 90);
+        path.CloseFigure();
+
+        return path;
+    }
+
+    private void DrawImageIfSelected(Graphics g, int index, GraphicsPath path, Rectangle rect)
+    {
+        if (SelectedMenuFlag != 0 && SelectedMenuFlag != 1 && imagePaths.Count > index)
+        {
+            try
+            {
+                using (Image image = Image.FromFile(imagePaths[index]))
+                {
+                    Rectangle destRect = CalculateImageDestinationRect(rect, image);
+                    Region originalClip = g.Clip;
+                    g.SetClip(path, CombineMode.Replace);
+                    g.DrawImage(image, destRect);
+                    g.Clip = originalClip;
+                }
+            }
+            catch (FileNotFoundException)
+            {
+                MessageBox.Show($"Image file not found: {imagePaths[index]}");
+            }
+        }
+    }
+
+    private Rectangle CalculateImageDestinationRect(Rectangle rect, Image image)
+    {
+        float imageAspectRatio = (float)image.Width / image.Height;
+        float rectAspectRatio = (float)rect.Width / rect.Height;
+        int destWidth, destHeight;
+
+        if (imageAspectRatio > rectAspectRatio)
+        {
+            destWidth = rect.Width;
+            destHeight = (int)(rect.Width / imageAspectRatio);
+        }
+        else
+        {
+            destHeight = rect.Height;
+            destWidth = (int)(rect.Height * imageAspectRatio);
+        }
+
+        int destX = rect.X + (rect.Width - destWidth) / 2;
+        int destY = rect.Y + (rect.Height - destHeight) / 2;
+
+        return new Rectangle(destX, destY, destWidth, destHeight);
+    }
+
+    public void RefreshMenu()
+    {
+        Invalidate();
+    }
+
+    public List<Point> generatemenu(int n)
+    {
+        MenuSelectedIndex = n - 1;
+        List<Point> myIcons = new List<Point>();
         int centerX = ClientSize.Width / 2;
         int centerY = ClientSize.Height / 2;
-
-        // Define the radius of the circle (adjust as necessary)
         int radius = Math.Min(ClientSize.Width, ClientSize.Height) / 4;
-
-        // Calculate angle between each icon
         double angleIncrement = 360.0 / n;
 
         for (int i = 0; i < n; i++)
         {
-            // Calculate the angle in radians
             double angleInRadians = (angleIncrement * i) * (Math.PI / 180);
-
-            // Calculate the x and y coordinates using polar to Cartesian conversion
             int x = (int)(centerX + radius * Math.Cos(angleInRadians) - MenuIconWidth / 2);
             int y = (int)(centerY + radius * Math.Sin(angleInRadians) - MenuIconHeight / 2);
-
-            // Add the point to the list
-            myicons.Add(new Point(x, y));
+            myIcons.Add(new Point(x, y));
         }
 
-        return myicons;
+        return myIcons;
     }
     public List<CActor> CreateMenuObjects(List<Point> points)
     {
@@ -480,11 +483,12 @@ public class TuioDemo : Form, TuioListener
         int availableWidth = ClientSize.Width - (padding * 4);
 
         int maxWidth = ((availableWidth / CountMenuItems) - 200);
-        if(SelectedMenuFlag != 0)
+        if(SelectedMenuFlag == 2) // 2 items
         {
-            maxWidth= (availableWidth / CountMenuItems) - 750;
+            maxWidth= (availableWidth / CountMenuItems) - 350;
             MenuIconHeight = 250;
         }
+        
         List<CActor> objs = new List<CActor>();
 
         for (int i = 0; i < points.Count; i++)
@@ -507,17 +511,16 @@ public class TuioDemo : Form, TuioListener
         return objs;
     }
    
-                       
     public Graphics drawmenu(List<CActor> menuobjs, Graphics g)
     {
         int cornerRadius = 10;
         int padding = 10;
-        bool drawTextBelow;
+        bool drawTextBelow = true;
         // Set a base font and adjust only once if needed
         Font subFont = new Font("Segoe UI", 16, FontStyle.Bold);
         SolidBrush textBrush = new SolidBrush(Color.Black);
 
-        for (int i = 0; i < menuobjs.Count; i++)
+        for (int i = 0; i < menuobjs.Count; i++) // go over each menu item
         {
             Rectangle rect = new Rectangle(menuobjs[i].X, menuobjs[i].Y, menuobjs[i].W, menuobjs[i].H);
 
@@ -525,20 +528,48 @@ public class TuioDemo : Form, TuioListener
            
 
             // Define text based on menu item
-            string itemText;
-            if (SelectedMenuFlag == 0)
-            {
-                DrawRoundedRectangle(g, (menuobjs[i].color == 0) ? MenuItemBrush : SelectedItemBrush, rect, cornerRadius,i);
-                itemText = (i == 0) ? "Extracoronal \r\n restorations" : "Intracoronal \r\n restorations";
-                drawTextBelow = false;
-            }
-            else
-            {
-                DrawRoundedRectangle(g, (menuobjs[i].color == 0) ? MenuItemBrush : SelectedItemBrush, rect, cornerRadius, i);
-                itemText = (i == 0) ? "Test \r\n restorations" : "Test 2 \r\n restorations";
-                drawTextBelow = true;
-            }
+            string itemText = "";
+            DrawRoundedRectangle(g, (menuobjs[i].color == 0) ? MenuItemBrush : SelectedItemBrush, rect, cornerRadius, i);
+            switch (SelectedMenuFlag){
+                case 0:
+                    
+                    itemText = (i == 0) ? "Extracoronal \r\n restorations" : "Intracoronal \r\n restorations";
+                    drawTextBelow = false;
+                    break;
+                 case 1:
+                    
+                    itemText = (i == 0) ? "Full \r\n Coverage" : "Partial \r\n Coverage";
+                    drawTextBelow = false;
+                    break;
+                case 2:
+                  
+                    itemText = "Inlay \r\n restoration";
+                    break;
+                case 3:
+                  
+                    itemText = (i == 0) ? "Full \r\n veneer" : "All \r\n Ceramic";
+                    break;
+                case 4:
 
+                   switch(i){
+                        case 0:
+                            itemText = "Three Quarter";
+                            break;
+                        case 1:
+                            itemText = "Seven Eighth";
+                            break;
+                        case 2:
+                            itemText = "Pin Moidified";
+                            break;   
+                    }
+                    break;
+                default:
+                    //DrawRoundedRectangle(g, (menuobjs[i].color == 0) ? MenuItemBrush : SelectedItemBrush, rect, cornerRadius, i);
+                    break;
+            }
+        
+           
+            
             // Adjust the text position based on drawTextBelow flag
             StringFormat format = new StringFormat
             {
@@ -631,7 +662,7 @@ public class TuioDemo : Form, TuioListener
         }
     */
     public int mainmenuflag = 1;
-    
+ 
     protected override void OnPaintBackground(PaintEventArgs pevent)
     {
         // Getting the graphics object
@@ -748,29 +779,19 @@ public class TuioDemo : Form, TuioListener
                             if (obj1.SymbolID == 15 && obj2.SymbolID == 12 && AreObjectsIntersecting(obj1,obj2))
                             {
 
-                                switch (SelectedMenuFlag) // which menu are you at
+                                switch (SelectedMenuFlag) // which menu are you're at
                                 {
                                     case 0://if you're at the first menu 
-                                            if (MenuSelectedIndex == 0) //if you select the first option
+                                            if (MenuSelectedIndex == 0) //if you select the first option [EXTRACORONAL RESTORRATIONS]
                                             {
                                                 CountMenuItems = 2;
-                                                SelectedMenuFlag = 1;
-                                                imagePaths = new List<string>{
-                                                          "All ceramic crown preparation.png",
-                                                        "Anterior three quarter crown.png",
-                                                        "Full veneer crown.png",
-                                                        "Inlay.png",
-                                                        "Pin-Modified three quarter crown.png",
-                                                        "Posterior three quarter crown.png",
-                                                        "Seven-eighth Crown.png",
-                                                        "Seven-eighth Crown.png",
-                                                        "Seven-eighth Crown.png"
-                                                        };
-
+                                                SelectedMenuFlag = 1; // index of the new menu you're at
+                                              
 
                                             }
-                                            else
+                                            else if (MenuSelectedIndex == 1) //if you select the second option  [Interacrooanl RESTORRATIONS]
                                             {
+                                                
                                                 CountMenuItems = 1;
                                                 SelectedMenuFlag = 2; 
                                                 imagePaths = new List<string>{
@@ -779,8 +800,30 @@ public class TuioDemo : Form, TuioListener
                                             }
                                         break;
                                     case 1:
-                                        CountMenuItems = 4;
-                                        break;
+                                            if (MenuSelectedIndex == 0) //if you select the first option  [FULL COVERGE]
+                                            {
+                                                CountMenuItems = 2;
+                                                SelectedMenuFlag = 3; // index of the new menu you're at
+                                                imagePaths = new List<string>{
+                                                          @"./Crown Dental APP/2d illustrations/All ceramic crown preparation.png",
+                                                        @"./Crown Dental APP/2d illustrations/Full veneer crown.png",
+                                                        };
+
+
+                                            }
+                                            else if (MenuSelectedIndex == 1) //if you select the second option [Partial COVERGE]
+                                            {
+
+                                                CountMenuItems = 3;
+                                                SelectedMenuFlag = 4;
+                                                imagePaths = new List<string>{
+                                                        @"./Crown Dental APP/2d illustrations/Anterior three quarter crown.png",
+                                                        @"./Crown Dental APP/2d illustrations/Pin-Modified three quarter crown.png",
+                                                        @"./Crown Dental APP/2d illustrations/Seven-eighth Crown.png",
+                                                        };
+                                            }
+                                            break;
+
                                 }
                             }
                         }
