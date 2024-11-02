@@ -366,11 +366,9 @@ public class TuioDemo : Form, TuioListener
         }
         if (verbose) Console.WriteLine("del blb " + b.BlobID + " (" + b.SessionID + ")");
     }
-    public static List<string> imagePaths = new List<string>{
-                                                          @"./Crown Dental APP/2d illustrations/All ceramic crown preparation.png",
-                                                        @"./Crown Dental APP/2d illustrations/Full veneer crown.png",
-                                                        };
-    public int SelectedMenuFlag = 3;  public void refresh(TuioTime frameTime)
+    public static List<string> imagePaths = new List<string>();
+    public int SelectedMenuFlag = 0;
+    public void refresh(TuioTime frameTime)
     {
         Invalidate();
     }
