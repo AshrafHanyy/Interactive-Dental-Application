@@ -219,20 +219,22 @@ public class TuioDemo : Form, TuioListener
     private double rotationThreshold = 10f;  // Example: 15-degree change
     private double previousRotationAngle = 0f;
 
-    public void checkrotation(List<CActor> objs,Graphics g, TuioObject o )
+    public void checkrotation(List<CActor> objs, Graphics g, TuioObject o)
     {
         if (o.SymbolID == menuMarker) // Assuming marker with SymbolID 0 controls the menu
         {
-           
-
             // Convert the angle to degrees
             double angleDegrees = o.Angle * 180.0 / Math.PI;
 
             // Normalize the angle to be within 0 to 360 degrees
             if (angleDegrees < 0) angleDegrees += 360;
-            double rotationDifference = Math.Abs(angleDegrees - previousRotationAngle);
 
+            // Reverse the angle direction for correct item selection
+            angleDegrees = 360 - angleDegrees;
+
+            double rotationDifference = Math.Abs(angleDegrees - previousRotationAngle);
             previousRotationAngle = angleDegrees;
+
             // Divide the full circle (360 degrees) into equal sections for each menu item
             double anglePerItem = 360.0 / CountMenuItems;
 
@@ -240,7 +242,7 @@ public class TuioDemo : Form, TuioListener
             int newMenuIndex = (int)Math.Floor(angleDegrees / anglePerItem) % CountMenuItems;
 
             // Update the menu selection only if the new index is different from the current one
-            if (newMenuIndex != MenuSelectedIndex )
+            if (newMenuIndex != MenuSelectedIndex)
             {
                 if (MenuSelectedIndex >= 0 && MenuSelectedIndex < CountMenuItems)
                 {
@@ -250,22 +252,20 @@ public class TuioDemo : Form, TuioListener
                 // Set color of the new menu item
                 if (newMenuIndex >= 0 && newMenuIndex < CountMenuItems)
                 {
-                    MenuObjs[newMenuIndex].color = 1;
-                   // Select new menu item
+                    MenuObjs[newMenuIndex].color = 1; // Select new menu item
                 }
-               
-                    // If the icon has significantly rotated and sound hasn't been played
-                    if (!hasPlayedSound && rotationDifference > rotationThreshold)
-                    {
-                        PlaySoundEffect("menusound_swipe.mp3");
-                        hasPlayedSound = true;  // Set the flag to prevent repeated plays
 
-                    }
-                 else
-                 {
+                // If the icon has significantly rotated and sound hasn't been played
+                if (!hasPlayedSound && rotationDifference > rotationThreshold)
+                {
+                    PlaySoundEffect("menusound_swipe.mp3");
+                    hasPlayedSound = true;  // Set the flag to prevent repeated plays
+                }
+                else
+                {
                     // If the rotation is not significant, reset the flag
                     hasPlayedSound = false;
-                 }
+                }
 
                 // Update the selected menu index
                 MenuSelectedIndex = newMenuIndex;
@@ -280,9 +280,8 @@ public class TuioDemo : Form, TuioListener
                 Console.WriteLine("MenuSelectedIndex: " + MenuSelectedIndex);
             }
         }
-
-
     }
+
     public void updateTuioObject(TuioObject o)
     {
        
@@ -367,7 +366,9 @@ public class TuioDemo : Form, TuioListener
         }
         if (verbose) Console.WriteLine("del blb " + b.BlobID + " (" + b.SessionID + ")");
     }
-    public static void DrawRoundedRectangle(Graphics g, Brush brush, Rectangle rect, int radius)
+    public static List<string> imagePaths = new List<string>();
+    public int SelectedMenuFlag = 0;
+    public void DrawRoundedRectangle(Graphics g, Brush brush, Rectangle rect, int radius, int index)
     {
         using (GraphicsPath path = new GraphicsPath())
         {
@@ -375,27 +376,64 @@ public class TuioDemo : Form, TuioListener
             SizeF sizeF = new SizeF(diameter, diameter);
             RectangleF arc = new RectangleF(rect.Location, sizeF);
 
-            // Top left arc
+            // Add rounded corners
             path.AddArc(arc, 180, 90);
-
-            // Top right arc
             arc.X = rect.Right - diameter;
             path.AddArc(arc, 270, 90);
-
-            // Bottom right arc
             arc.Y = rect.Bottom - diameter;
             path.AddArc(arc, 0, 90);
-
-            // Bottom left arc
             arc.X = rect.Left;
             path.AddArc(arc, 90, 90);
-
             path.CloseFigure();
 
-            // Fill the rounded rectangle
+            // Draw the rounded rectangle background
             g.FillPath(brush, path);
+
+            // Draw the image only if SelectedMenuFlag > 1
+            if (SelectedMenuFlag > 1 && imagePaths.Count > index)
+            {
+                try
+                {
+                    using (Image image = Image.FromFile(imagePaths[index]))
+                    {
+                        // Calculate the aspect ratio of the image and the destination rectangle
+                        float imageAspectRatio = (float)image.Width / image.Height;
+                        float rectAspectRatio = (float)rect.Width / rect.Height;
+
+                        int destWidth, destHeight;
+
+                        // Scale the image to fit within the destination rectangle while maintaining the aspect ratio
+                        if (imageAspectRatio > rectAspectRatio)
+                        {
+                            destWidth = rect.Width;
+                            destHeight = (int)(rect.Width / imageAspectRatio);
+                        }
+                        else
+                        {
+                            destHeight = rect.Height;
+                            destWidth = (int)(rect.Height * imageAspectRatio);
+                        }
+
+                        // Calculate the position to center the image within the rectangle
+                        int destX = rect.X + (rect.Width - destWidth) / 2;
+                        int destY = rect.Y + (rect.Height - destHeight) / 2;
+                        Rectangle destRect = new Rectangle(destX, destY, destWidth, destHeight);
+
+                        // Clip to the rounded rectangle path and draw the image centered and scaled
+                        Region originalClip = g.Clip;
+                        g.SetClip(path, CombineMode.Replace);
+                        g.DrawImage(image, destRect);
+                        g.Clip = originalClip;
+                    }
+                }
+                catch (FileNotFoundException)
+                {
+                    MessageBox.Show("Image file not found: " + imagePaths[index]);
+                }
+            }
         }
     }
+
 
     public void refresh(TuioTime frameTime)
     {
@@ -404,9 +442,9 @@ public class TuioDemo : Form, TuioListener
     public int MenuIconWidth = 100;
     public int MenuIconHeight = 150;
     public int CountMenuItems = 2;
-    public int MenuSelectedIndex = 0;
+    public int MenuSelectedIndex = 0; //item selection
     List<CActor> MenuObjs = new List<CActor>();
-    public List<Point> generatemenu(int n)
+    public List<Point> generatemenu(int n) //generate points
     {
         MenuSelectedIndex = n-1;
         List<Point> myicons = new List<Point>();
@@ -440,8 +478,13 @@ public class TuioDemo : Form, TuioListener
     {
         int padding = 20;
         int availableWidth = ClientSize.Width - (padding * 4);
-        int maxWidth = availableWidth / CountMenuItems;
 
+        int maxWidth = ((availableWidth / CountMenuItems) - 200);
+        if(SelectedMenuFlag != 0)
+        {
+            maxWidth= (availableWidth / CountMenuItems) - 750;
+            MenuIconHeight = 250;
+        }
         List<CActor> objs = new List<CActor>();
 
         for (int i = 0; i < points.Count; i++)
@@ -449,6 +492,7 @@ public class TuioDemo : Form, TuioListener
             CActor obj = new CActor();
 
             // Adjust width based on the number of items
+
             obj.W = maxWidth;
             obj.H = MenuIconHeight;
 
@@ -462,12 +506,13 @@ public class TuioDemo : Form, TuioListener
         }
         return objs;
     }
-
+   
+                       
     public Graphics drawmenu(List<CActor> menuobjs, Graphics g)
     {
         int cornerRadius = 10;
         int padding = 10;
-
+        bool drawTextBelow;
         // Set a base font and adjust only once if needed
         Font subFont = new Font("Segoe UI", 16, FontStyle.Bold);
         SolidBrush textBrush = new SolidBrush(Color.Black);
@@ -477,35 +522,48 @@ public class TuioDemo : Form, TuioListener
             Rectangle rect = new Rectangle(menuobjs[i].X, menuobjs[i].Y, menuobjs[i].W, menuobjs[i].H);
 
             // Draw background of menu items
-            DrawRoundedRectangle(g, (menuobjs[i].color == 0) ? MenuItemBrush : SelectedItemBrush, rect, cornerRadius);
+           
 
             // Define text based on menu item
-            if(SelectedMenuFlag == 0)
+            string itemText;
+            if (SelectedMenuFlag == 0)
             {
-                string itemText = (i == 0) ? "Extracoronal \r\n restorations" : "Intracoronal \r\n restorations";
-
-                // Center text inside rectangle with adjusted format
-                StringFormat format = new StringFormat();
-                format.Alignment = StringAlignment.Center;
-                format.LineAlignment = StringAlignment.Center;
-
-                g.DrawString(itemText, subFont, textBrush, rect, format);
-
+                DrawRoundedRectangle(g, (menuobjs[i].color == 0) ? MenuItemBrush : SelectedItemBrush, rect, cornerRadius,i);
+                itemText = (i == 0) ? "Extracoronal \r\n restorations" : "Intracoronal \r\n restorations";
+                drawTextBelow = false;
             }
             else
             {
-                string itemText = (i == 0) ? "Test \r\n restorations" : "Test 2 \r\n restorations";
-
-                // Center text inside rectangle with adjusted format
-                StringFormat format = new StringFormat();
-                format.Alignment = StringAlignment.Center;
-                format.LineAlignment = StringAlignment.Center;
-
-                g.DrawString(itemText, subFont, textBrush, rect, format);
-
+                DrawRoundedRectangle(g, (menuobjs[i].color == 0) ? MenuItemBrush : SelectedItemBrush, rect, cornerRadius, i);
+                itemText = (i == 0) ? "Test \r\n restorations" : "Test 2 \r\n restorations";
+                drawTextBelow = true;
             }
 
+            // Adjust the text position based on drawTextBelow flag
+            StringFormat format = new StringFormat
+            {
+                Alignment = StringAlignment.Center,
+                LineAlignment = StringAlignment.Center
+            };
 
+            if (drawTextBelow)
+            {
+                // Draw text below the rectangle
+                Rectangle textRect = new Rectangle(
+                    rect.X,
+                    rect.Bottom - padding, // Position below the menu item with padding
+                    rect.Width,
+                    rect.Height // Set height as per need for text
+                );
+                Font BelowFont = new Font("Segoe UI", 26, FontStyle.Bold);
+                
+                g.DrawString(itemText, BelowFont, textBrush, textRect, format);
+            }
+            else
+            {
+                // Draw text inside the rectangle
+                g.DrawString(itemText, subFont, textBrush, rect, format);
+            }
         }
 
         return g;
@@ -573,7 +631,7 @@ public class TuioDemo : Form, TuioListener
         }
     */
     public int mainmenuflag = 1;
-    public int SelectedMenuFlag = 0;
+    
     protected override void OnPaintBackground(PaintEventArgs pevent)
     {
         // Getting the graphics object
@@ -585,12 +643,12 @@ public class TuioDemo : Form, TuioListener
 
         ////////////////////////////////////////////////////
         ///////////////////////
-        // Define the rectangle for the title text
+        // Define a rectangle for the title text
         Font titleFont = new Font("Segoe UI", 35, FontStyle.Bold);
         SolidBrush textBrush = new SolidBrush(Color.Black);
 
         // Define the dimensions and position for the semi-transparent rounded rectangle
-        int boxWidth = 700; // Adjust width as needed
+        int boxWidth = 800; // Adjust width as needed
         int boxHeight = 200; // Adjust height as needed
         int boxX = (this.window_width / 2) - (boxWidth / 2);
         int boxY = this.ClientRectangle.Top + 20;
@@ -690,18 +748,34 @@ public class TuioDemo : Form, TuioListener
                             if (obj1.SymbolID == 15 && obj2.SymbolID == 12 && AreObjectsIntersecting(obj1,obj2))
                             {
 
-                                switch (SelectedMenuFlag)
+                                switch (SelectedMenuFlag) // which menu are you at
                                 {
-                                    case 0:
-                                            if (MenuSelectedIndex == 0)
+                                    case 0://if you're at the first menu 
+                                            if (MenuSelectedIndex == 0) //if you select the first option
                                             {
                                                 CountMenuItems = 2;
                                                 SelectedMenuFlag = 1;
+                                                imagePaths = new List<string>{
+                                                          "All ceramic crown preparation.png",
+                                                        "Anterior three quarter crown.png",
+                                                        "Full veneer crown.png",
+                                                        "Inlay.png",
+                                                        "Pin-Modified three quarter crown.png",
+                                                        "Posterior three quarter crown.png",
+                                                        "Seven-eighth Crown.png",
+                                                        "Seven-eighth Crown.png",
+                                                        "Seven-eighth Crown.png"
+                                                        };
+
+
                                             }
                                             else
                                             {
                                                 CountMenuItems = 1;
-                                                SelectedMenuFlag = 2;
+                                                SelectedMenuFlag = 2; 
+                                                imagePaths = new List<string>{
+                                                    @"./Crown Dental APP/2d illustrations/Inlay.png",
+                                                        };
                                             }
                                         break;
                                     case 1:
