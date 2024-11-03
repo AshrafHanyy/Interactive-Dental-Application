@@ -882,8 +882,6 @@ public class TuioDemo : Form, TuioListener
                                                           @"./Crown Dental APP/2d illustrations/All ceramic crown preparation.png",
                                                         @"./Crown Dental APP/2d illustrations/Full veneer crown.png",
                                                         };
-
-
                                             }
                                             else if (MenuSelectedIndex == 1) //if you select the second option [Partial COVERGE]
                                             {
@@ -898,7 +896,30 @@ public class TuioDemo : Form, TuioListener
                                             }
                                             ActivateDelay();
                                             break;
-
+                                        case 3:
+                                            if (MenuSelectedIndex == 0)
+                                            {
+                                                Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application3\TUIO Folder\WpfApp1\obj\Debug\All ceramic crown preparation.stl");
+                                            }
+                                            else if (MenuSelectedIndex == 1)
+                                            {
+                                                Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application3\TUIO Folder\WpfApp1\obj\Debug\Full veneer crown preparation.stl");
+                                            }
+                                            break;
+                                        case 4:
+                                            if (MenuSelectedIndex == 0)
+                                            {
+                                                Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application3\TUIO Folder\WpfApp1\obj\Debug\Anterior Three quarter crown preparation .stl");
+                                            }
+                                            else if (MenuSelectedIndex == 1)
+                                            {
+                                                Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application3\TUIO Folder\WpfApp1\obj\Debug\Pin modified three-quarter crown preparation.stl");
+                                            }
+                                            else if (MenuSelectedIndex == 2)
+                                            {
+                                                Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application3\TUIO Folder\WpfApp1\obj\Debug\Seven-eighth crown preparation.stl");
+                                            }
+                                            break;
                                     }
                                 }
 
@@ -936,8 +957,6 @@ public class TuioDemo : Form, TuioListener
                                             ActivateDelay();
                                             break;
                                     }
-
-
                                 }
                             }
                         }
