@@ -1,11 +1,44 @@
 import bluetooth
 import socket
 
-# Discover nearby Bluetooth devices and write to a file
-nearby_devices = bluetooth.discover_devices(lookup_names=True)
-with open("bluetooth_devices.txt", "w") as file:
-    for addr, name in nearby_devices:
+# File to store recognized Bluetooth devices
+file_path = "bluetooth_devices.txt"
+
+# Function to load existing devices from the file
+def load_devices(file_path):
+    devices = set()
+    try:
+        with open(file_path, "r", encoding="utf-8") as file:
+            for line in file:
+                name, addr = line.strip().split(" - ")
+                devices.add((name, addr))
+    except FileNotFoundError:
+        # If the file does not exist, initialize it
+        open(file_path, "w", encoding="utf-8").close()
+    return devices
+
+# Function to save a new device to the file
+def save_device(file_path, name, addr):
+    with open(file_path, "a", encoding="utf-8") as file:
         file.write(f"{name} - {addr}\n")
+
+# Discover nearby Bluetooth devices
+nearby_devices = bluetooth.discover_devices(lookup_names=True)
+
+# Load previously stored devices
+known_devices = load_devices(file_path)
+
+# Determine if there are any new devices
+new_device_found = False
+for addr, name in nearby_devices:
+    if (name, addr) not in known_devices:
+        new_device_found = True
+        save_device(file_path, name, addr)  # Save the new device
+        print(f"{name} - {addr}: New device found, will send 'signup'.")
+        
+
+# Set the message based on whether new devices were found
+message = "signup" if new_device_found else "login"
 
 # Set up a socket server
 HOST = '127.0.0.1'  # Localhost for testing; use your actual IP if needed
@@ -20,10 +53,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
     with conn:
         print('Connected by', addr)
         
-        # Read and send the Bluetooth data
-        with open("bluetooth_devices.txt", "r") as file:
-            data = file.read()
-        
-        # Send data in chunks to avoid issues with buffer limits
-        conn.sendall(data.encode())
-        print("Data sent to client.")
+        # Send the single message ("login" or "signup")
+        conn.sendall(message.encode())
+        print(f"Message '{message}' sent to client.")
