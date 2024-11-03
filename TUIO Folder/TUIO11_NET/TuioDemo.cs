@@ -34,7 +34,10 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 //using Newtonsoft.Json;
-//using Dental3DViewer; // Namespace of your WPF project
+using System.Windows.Forms.Integration;
+using WpfApp1;
+using System.Windows.Media.Media3D;
+
 
 public class TuioDemo : Form, TuioListener
 {
@@ -42,7 +45,8 @@ public class TuioDemo : Form, TuioListener
     private Dictionary<long, TuioObject> objectList;
     private Dictionary<long, TuioCursor> cursorList;
     private Dictionary<long, TuioBlob> blobList;
-
+    private AxisAngleRotation3D modelRotationAngle;
+    private RotateTransform3D modelRotation;
 
     public static int width, height, selectedIndex = -1;
     private int window_width = Screen.PrimaryScreen.Bounds.Width;
@@ -69,7 +73,7 @@ public class TuioDemo : Form, TuioListener
     Pen curPen = new Pen(new SolidBrush(Color.Blue), 1);
 
     List<Point> mymenupoints = new List<Point>();
-  
+
 
     //var viewerControl = new Dental3DViewerControl();
     //elementHost1.Child = viewerControl;
@@ -83,9 +87,11 @@ public class TuioDemo : Form, TuioListener
         public Rectangle rcSrc;
         public Bitmap img;
         public int color = 0;
-        public int X,Y,W,H;
+        public int X, Y, W, H;
 
     }
+    private ElementHost wpfHost;
+    private dent3DviewerController viewerControl;
     public TuioDemo(int port)
     {
 
@@ -93,9 +99,9 @@ public class TuioDemo : Form, TuioListener
         fullscreen = false;
         width = window_width;
         height = window_height;
-            
+
         this.ClientSize = new System.Drawing.Size(width, height);
-        this.Name = "Crown Preparation Application"; 
+        this.Name = "Crown Preparation Application";
         this.Name = "Crown Preparations Interactive App";
         //Button button = new Button();
         //button.Text = "START";
@@ -120,16 +126,37 @@ public class TuioDemo : Form, TuioListener
 
         client = new TuioClient(port);
         client.addTuioListener(this);
-        
+
         client.connect();
     }
 
+    private void Initialize3DViewer(string file_path)
+    {
+        // Initialize the WPF 3D viewer control and ElementHost
+        wpfHost = new ElementHost
+        {
+            Dock = DockStyle.Fill // Fill the entire form
+        };
+
+        // Create instance of the 3D viewer control from WPF
+        viewerControl = new dent3DviewerController(file_path);
+
+        // Assign the WPF control to the ElementHost
+        wpfHost.Child = viewerControl;
+
+        // Add the ElementHost to the Windows Forms control
+        this.Controls.Add(wpfHost);
+    }
+
+
     private void TuioDemo_Load(object sender, EventArgs e)
     {
-/*        string audiofilepath = ("01 - Track 01.mp3");
-        PlayBackgroundMusic(audiofilepath);*/
+        /*        string audiofilepath = ("01 - Track 01.mp3");
+                PlayBackgroundMusic(audiofilepath);*/
         off = new Bitmap(this.ClientSize.Width, this.ClientSize.Height);
+        Task.Run(async () => await ReceivePredictionsAsync());
         this.InitializeComponent();
+        Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application2\TUIO Folder\WpfApp1\obj\Debug\4 UpperJawScan.stl");
     }
 
     private void Form_KeyDown(object sender, System.Windows.Forms.KeyEventArgs e)
@@ -213,7 +240,7 @@ public class TuioDemo : Form, TuioListener
         //soundEffect.Volume = 0.8f;
         soundEffectOutput.Volume = 0.8f;
     }
-    public int menuMarker = 15; 
+    public int menuMarker = 15;
     private bool hasPlayedSound = false;
     // Declare a threshold for rotation change (adjust based on your use case)
     private double rotationThreshold = 10f;  // Example: 15-degree change
@@ -284,7 +311,7 @@ public class TuioDemo : Form, TuioListener
 
     public void updateTuioObject(TuioObject o)
     {
-       
+
         // Existing verbose logging for other object data
         if (verbose)
         {
@@ -481,12 +508,12 @@ public class TuioDemo : Form, TuioListener
         int availableWidth = ClientSize.Width - (padding * 4);
 
         int maxWidth = ((availableWidth / CountMenuItems) - 200);
-        if(SelectedMenuFlag == 2) // 2 items
+        if (SelectedMenuFlag == 2) // 2 items
         {
-            maxWidth= (availableWidth / CountMenuItems) - 350;
+            maxWidth = (availableWidth / CountMenuItems) - 350;
             MenuIconHeight = 250;
         }
-        
+
         List<CActor> objs = new List<CActor>();
 
         for (int i = 0; i < points.Count; i++)
@@ -508,7 +535,7 @@ public class TuioDemo : Form, TuioListener
         }
         return objs;
     }
-   
+
     public Graphics drawmenu(List<CActor> menuobjs, Graphics g)
     {
         int cornerRadius = 10;
@@ -523,33 +550,35 @@ public class TuioDemo : Form, TuioListener
             Rectangle rect = new Rectangle(menuobjs[i].X, menuobjs[i].Y, menuobjs[i].W, menuobjs[i].H);
 
             // Draw background of menu items
-           
+
 
             // Define text based on menu item
             string itemText = "";
             DrawRoundedRectangle(g, (menuobjs[i].color == 0) ? MenuItemBrush : SelectedItemBrush, rect, cornerRadius, i);
-            switch (SelectedMenuFlag){
+            switch (SelectedMenuFlag)
+            {
                 case 0:
-                    
+
                     itemText = (i == 0) ? "Extracoronal \r\n restorations" : "Intracoronal \r\n restorations";
                     drawTextBelow = false;
                     break;
-                 case 1:
-                    
+                case 1:
+
                     itemText = (i == 0) ? "Full \r\n Coverage" : "Partial \r\n Coverage";
                     drawTextBelow = false;
                     break;
                 case 2:
-                  
+
                     itemText = "Inlay \r\n restoration";
                     break;
                 case 3:
-                  
+
                     itemText = (i == 0) ? "Full \r\n veneer" : "All \r\n Ceramic";
                     break;
                 case 4:
 
-                   switch(i){
+                    switch (i)
+                    {
                         case 0:
                             itemText = "Three Quarter";
                             break;
@@ -558,16 +587,16 @@ public class TuioDemo : Form, TuioListener
                             break;
                         case 2:
                             itemText = "Pin Moidified";
-                            break;   
+                            break;
                     }
                     break;
                 default:
                     //DrawRoundedRectangle(g, (menuobjs[i].color == 0) ? MenuItemBrush : SelectedItemBrush, rect, cornerRadius, i);
                     break;
             }
-        
-           
-            
+
+
+
             // Adjust the text position based on drawTextBelow flag
             StringFormat format = new StringFormat
             {
@@ -585,7 +614,7 @@ public class TuioDemo : Form, TuioListener
                     rect.Height // Set height as per need for text
                 );
                 Font BelowFont = new Font("Segoe UI", 26, FontStyle.Bold);
-                
+
                 g.DrawString(itemText, BelowFont, textBrush, textRect, format);
             }
             else
@@ -598,74 +627,48 @@ public class TuioDemo : Form, TuioListener
         return g;
     }
 
-
-
-    /*    private async Task<string> getTeethData(string symbolId)
+    private async Task ReceivePredictionsAsync()
+    {
+        try
         {
-            try
+            using (TcpClient client = new TcpClient("localhost", 65434))
             {
-                using (TcpClient client = new TcpClient("localhost", 5000))
+                client.ReceiveTimeout = 2000;
+                client.SendTimeout = 2000;
+
+                using (NetworkStream stream = client.GetStream())
                 {
-                    client.ReceiveTimeout = 2000;
-                    client.SendTimeout = 2000;
-                    using (NetworkStream stream = client.GetStream())
+                    byte[] dataToReceive = new byte[4096];
+                    int bytesRead;
+
+                    while ((bytesRead = await stream.ReadAsync(dataToReceive, 0, dataToReceive.Length)) != 0)
                     {
-                        byte[] dataToSend = Encoding.ASCII.GetBytes(symbolId);
-                        await stream.WriteAsync(dataToSend, 0, dataToSend.Length);
-
-                        byte[] dataToReceive = new byte[4096];
-                        int bytesRead = await stream.ReadAsync(dataToReceive, 0, dataToReceive.Length);
+                        // Convert received bytes to string
                         string responseData = Encoding.ASCII.GetString(dataToReceive, 0, bytesRead);
-
-                        var patientInfo = JsonConvert.DeserializeObject<Dictionary<string, object>>(responseData);
-                        Console.WriteLine(patientInfo["image"]);
-
-                        if (patientInfo != null && patientInfo.ContainsKey("image"))
+                        Console.WriteLine("Received Prediction: " + responseData);
+                        if (responseData == "Swipe right")
                         {
-                            string imageUrlOrBase64 = patientInfo["image"].ToString();
-                            //await DisplayPatientImageAsync(imageUrlOrBase64);
+                            Console.WriteLine("Inside right");
+                            viewerControl.RotateBasedOnCommand("Swipe right");
                         }
-
-                        return responseData;
+                        else if (responseData == "Swipe left")
+                        {
+                            Console.WriteLine("Inside left");
+                            viewerControl.RotateBasedOnCommand("Swipe left");
+                        }
                     }
-
-
                 }
             }
-            catch (OperationCanceledException)
-            {
-                Console.WriteLine("Request canceled.");
-                return null;
-            }
-            catch (SocketException se)
-            {
-                Console.WriteLine("Socket error: " + se.Message);
-                return null;
-            }
-            catch (TimeoutException te)
-            {
-                Console.WriteLine("Timeout: " + te.Message);
-                return null;
-            }
-            catch (JsonException je)
-            {
-                Console.WriteLine("JSON error: " + je.Message);
-                return null;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error: " + ex.Message);
-                return null;
-            }
         }
-    */
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error: " + ex.Message);
+        }
+    }
     public int mainmenuflag = 1;
- 
+
     protected override void OnPaintBackground(PaintEventArgs pevent)
     {
-        // Getting the graphics object
-        //getTeethData("15");
-        
         Graphics g = pevent.Graphics;
         //g.FillRectangle(bgrBrush, new Rectangle(0, 0, width, height));
         g.Clear(Color.WhiteSmoke);
@@ -702,7 +705,7 @@ public class TuioDemo : Form, TuioListener
         if (mainmenuflag == 1)
         {
             // g.FillRectangle(bgrBrush, new Rectangle(0, 0, width, height));
-           
+
             g.DrawImage(backgroundImage, new Rectangle(0, 0, width, height));
             g.FillPath(boxBrush, roundedRectPath);
             RectangleF textRect = new RectangleF(boxX + 10, boxY + 10, boxWidth - 20, boxHeight - 20);
@@ -714,90 +717,88 @@ public class TuioDemo : Form, TuioListener
                 LineAlignment = StringAlignment.Center   // Center vertically
             };
             g.DrawString("Interactive Application for Crown Preparation Learners", titleFont, textBrush, textRect, format);
-            mainmenuflag= checkmainmenu();
-            if(mainmenuflag == 2)
+            mainmenuflag = checkmainmenu();
+            if (mainmenuflag == 2)
             {
                 this.Controls.Remove(mainMenuButton);
                 this.mainMenuButton.Dispose();
             }
         }
-        else if(mainmenuflag == 2)
+        else if (mainmenuflag == 2)
         {
             g.DrawImage(backgroundImage2, new Rectangle(0, 0, width, height));
             if (cursorList.Count > 0)
-        {
-            lock (cursorList)
             {
-                foreach (TuioCursor tcur in cursorList.Values)
+                lock (cursorList)
                 {
-                    List<TuioPoint> path = tcur.Path;
-                    TuioPoint current_point = path[0];
-
-                    for (int i = 0; i < path.Count; i++)
+                    foreach (TuioCursor tcur in cursorList.Values)
                     {
-                        TuioPoint next_point = path[i];
-                        g.DrawLine(curPen, current_point.getScreenX(width), current_point.getScreenY(height), next_point.getScreenX(width), next_point.getScreenY(height));
-                        current_point = next_point;
+                        List<TuioPoint> path = tcur.Path;
+                        TuioPoint current_point = path[0];
+
+                        for (int i = 0; i < path.Count; i++)
+                        {
+                            TuioPoint next_point = path[i];
+                            g.DrawLine(curPen, current_point.getScreenX(width), current_point.getScreenY(height), next_point.getScreenX(width), next_point.getScreenY(height));
+                            current_point = next_point;
+                        }
+                        g.FillEllipse(curBrush, current_point.getScreenX(width) - height / 100, current_point.getScreenY(height) - height / 100, height / 50, height / 50);
+                        g.DrawString(tcur.CursorID + "", font, fntBrush, new PointF(tcur.getScreenX(width) - 10, tcur.getScreenY(height) - 10));
                     }
-                    g.FillEllipse(curBrush, current_point.getScreenX(width) - height / 100, current_point.getScreenY(height) - height / 100, height / 50, height / 50);
-                    g.DrawString(tcur.CursorID + "", font, fntBrush, new PointF(tcur.getScreenX(width) - 10, tcur.getScreenY(height) - 10));
                 }
             }
-        }
 
 
-        // draw the objects
-        if (objectList.Count > 0)
-        {
-            lock (objectList)
+            // draw the objects
+            if (objectList.Count > 0)
             {
-                foreach (TuioObject tobj in objectList.Values)
+                lock (objectList)
                 {
-                    int ox = tobj.getScreenX(width);
-                    int oy = tobj.getScreenY(height);
-                    int size = height / 10;
-
-               
-                    string objectImagePath = "";
-                    if (tobj.SymbolID == 15)
+                    foreach (TuioObject tobj in objectList.Values)
                     {
-                        mymenupoints = generatemenu(CountMenuItems);
-                        MenuObjs = CreateMenuObjects(mymenupoints);
-                        checkrotation(MenuObjs, g, tobj);
+                        int ox = tobj.getScreenX(width);
+                        int oy = tobj.getScreenY(height);
+                        int size = height / 10;
 
-                        g = drawmenu(MenuObjs, g);
-                        
 
-                    }
-                    foreach (TuioObject obj1 in objectList.Values)
-                    {
-                        foreach (TuioObject obj2 in objectList.Values)
+                        string objectImagePath = "";
+                        if (tobj.SymbolID == 15)
                         {
+                            mymenupoints = generatemenu(CountMenuItems);
+                            MenuObjs = CreateMenuObjects(mymenupoints);
+                            checkrotation(MenuObjs, g, tobj);
 
-                            if (obj1.SymbolID == 15 && obj2.SymbolID == 12 && AreObjectsIntersecting(obj1,obj2))
+                            g = drawmenu(MenuObjs, g);
+
+
+                        }
+                        foreach (TuioObject obj1 in objectList.Values)
+                        {
+                            foreach (TuioObject obj2 in objectList.Values)
                             {
 
-                                switch (SelectedMenuFlag) // which menu are you're at
+                                if (obj1.SymbolID == 15 && obj2.SymbolID == 12 && AreObjectsIntersecting(obj1, obj2))
                                 {
-                                    case 0://if you're at the first menu 
+
+                                    switch (SelectedMenuFlag) // which menu are you're at
+                                    {
+                                        case 0://if you're at the first menu 
                                             if (MenuSelectedIndex == 0) //if you select the first option [EXTRACORONAL RESTORRATIONS]
                                             {
                                                 CountMenuItems = 2;
                                                 SelectedMenuFlag = 1; // index of the new menu you're at
-                                              
-
                                             }
                                             else if (MenuSelectedIndex == 1) //if you select the second option  [Interacrooanl RESTORRATIONS]
                                             {
-                                                
+
                                                 CountMenuItems = 1;
-                                                SelectedMenuFlag = 2; 
+                                                SelectedMenuFlag = 2;
                                                 imagePaths = new List<string>{
                                                     @"./Crown Dental APP/2d illustrations/Inlay.png",
                                                         };
                                             }
-                                        break;
-                                    case 1:
+                                            break;
+                                        case 1:
                                             if (MenuSelectedIndex == 0) //if you select the first option  [FULL COVERGE]
                                             {
                                                 CountMenuItems = 2;
@@ -822,41 +823,41 @@ public class TuioDemo : Form, TuioListener
                                             }
                                             break;
 
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-        }
 
 
-        // draw the blobs
-        if (blobList.Count > 0)
-        {
-            lock (blobList)
+            // draw the blobs
+            if (blobList.Count > 0)
             {
-                foreach (TuioBlob tblb in blobList.Values)
+                lock (blobList)
                 {
-                    int bx = tblb.getScreenX(width);
-                    int by = tblb.getScreenY(height);
-                    float bw = tblb.Width * width;
-                    float bh = tblb.Height * height;
+                    foreach (TuioBlob tblb in blobList.Values)
+                    {
+                        int bx = tblb.getScreenX(width);
+                        int by = tblb.getScreenY(height);
+                        float bw = tblb.Width * width;
+                        float bh = tblb.Height * height;
 
-                    g.TranslateTransform(bx, by);
-                    g.RotateTransform((float)(tblb.Angle / Math.PI * 180.0f));
-                    g.TranslateTransform(-bx, -by);
+                        g.TranslateTransform(bx, by);
+                        g.RotateTransform((float)(tblb.Angle / Math.PI * 180.0f));
+                        g.TranslateTransform(-bx, -by);
 
-                    g.FillEllipse(blbBrush, bx - bw / 2, by - bh / 2, bw, bh);
+                        g.FillEllipse(blbBrush, bx - bw / 2, by - bh / 2, bw, bh);
 
-                    g.TranslateTransform(bx, by);
-                    g.RotateTransform(-1 * (float)(tblb.Angle / Math.PI * 180.0f));
-                    g.TranslateTransform(-bx, -by);
+                        g.TranslateTransform(bx, by);
+                        g.RotateTransform(-1 * (float)(tblb.Angle / Math.PI * 180.0f));
+                        g.TranslateTransform(-bx, -by);
 
-                    g.DrawString(tblb.BlobID + "", font, fntBrush, new PointF(bx, by));
+                        g.DrawString(tblb.BlobID + "", font, fntBrush, new PointF(bx, by));
+                    }
                 }
             }
-        }
         }
 
 
@@ -891,7 +892,7 @@ public class TuioDemo : Form, TuioListener
                     {
                         return 2;
                     }
-                 
+
                 }
             }
         }
@@ -914,7 +915,7 @@ public class TuioDemo : Form, TuioListener
     private Button mainMenuButton;
     private void InitializeComponent()
     {
-        this.DoubleBuffered= true;
+        this.DoubleBuffered = true;
         // 
         // buttonRJ1
         // 
@@ -931,9 +932,9 @@ public class TuioDemo : Form, TuioListener
         mainMenuButton.ForeColor = Color.White;
 
         mainMenuButton.FlatAppearance.Equals(FlatStyle.Flat);
-        mainMenuButton.Location = new Point((screen_width / 2 )- (350/2), (screen_height / 2) - (50));
+        mainMenuButton.Location = new Point((screen_width / 2) - (350 / 2), (screen_height / 2) - (50));
         mainMenuButton.TabIndex = 1;
-        mainMenuButton.BackColor= Color.Transparent; // Set the desired location
+        mainMenuButton.BackColor = Color.Transparent; // Set the desired location
         mainMenuButton.Click += new EventHandler(MainMenuButton_Click);
 
         // Add the button to the form only if mainmenuflag == 1
@@ -957,17 +958,18 @@ public class TuioDemo : Form, TuioListener
     {
         int obj1X = obj1.getScreenX(width);
         int obj1Y = obj1.getScreenY(height);
-        int obj1Size = 260; 
+        int obj1Size = 260;
 
         int obj2X = obj2.getScreenX(width);
         int obj2Y = obj2.getScreenY(height);
-        int obj2Size = 100; 
+        int obj2Size = 100;
 
         //this.Text = "(" + obj1X + " , " + obj1Y + ") (" + obj2X + " , " + obj2Y + ") " + "Size: " + obj1Size;
 
         return obj1X < obj2X + obj2Size && obj1X + obj1Size > obj2X &&
                obj1Y < obj2Y + obj2Size && obj1Y + obj1Size > obj2Y && (obj1.SymbolID == 15 || obj2.SymbolID == 15);
     }
+    [STAThread]
 
     public static void Main(String[] argv)
     {

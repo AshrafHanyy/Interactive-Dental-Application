@@ -1,0 +1,6 @@
+C:\Users\Administrator\Source\Repos\Interactive-Dental-Application2\TUIO Folder\TUIO11_NET\bin\Debug\libTUIO.dll
+C:\Users\Administrator\Source\Repos\Interactive-Dental-Application2\TUIO Folder\TUIO11_NET\bin\Debug\libTUIO.pdb
+C:\Users\Administrator\Source\Repos\Interactive-Dental-Application2\TUIO Folder\TUIO11_NET\obj\Debug\TUIO_LIB.csproj.AssemblyReference.cache
+C:\Users\Administrator\Source\Repos\Interactive-Dental-Application2\TUIO Folder\TUIO11_NET\obj\Debug\TUIO_LIB.csproj.CoreCompileInputs.cache
+C:\Users\Administrator\Source\Repos\Interactive-Dental-Application2\TUIO Folder\TUIO11_NET\obj\Debug\libTUIO.dll
+C:\Users\Administrator\Source\Repos\Interactive-Dental-Application2\TUIO Folder\TUIO11_NET\obj\Debug\libTUIO.pdb
