@@ -585,6 +585,11 @@ public class TuioDemo : Form, TuioListener
             maxWidth = (availableWidth / CountMenuItems) - 550;
             MenuIconHeight = 250;
         }
+        if (SelectedMenuFlag == 4) // 2 items
+        {
+            maxWidth = (availableWidth / CountMenuItems) - 200;
+            MenuIconHeight = 250;
+        }
 
         List<CActor> objs = new List<CActor>();
 
@@ -649,17 +654,18 @@ public class TuioDemo : Form, TuioListener
                     break;
                 case 4:
 
-                    switch (i)
+                   if(i == 0)
                     {
-                        case 0:
-                            itemText = "Three Quarter";
-                            break;
-                        case 1:
-                            itemText = "Seven Eighth";
-                            break;
-                        case 2:
-                            itemText = "Pin Moidified";
-                            break;
+                        itemText = "Three Quarter";
+                    }
+                    else if (i==1)
+                    {
+                        itemText = "Seven Eighth";
+                    }
+                   else
+                    {
+                        itemText = "Pin Moidified";
+                    
                     }
                     break;
                 default:
