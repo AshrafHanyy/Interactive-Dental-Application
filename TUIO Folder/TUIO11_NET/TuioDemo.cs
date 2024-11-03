@@ -43,6 +43,12 @@ using System.Windows.Media.Media3D;
 
 public class TuioDemo : Form, TuioListener
 {
+    private TcpClient serverClient;
+    private NetworkStream serverStream;
+    private string serverHost = "127.0.0.1";
+    private int serverPort = 65432;
+
+
     private TuioClient client;
     private Dictionary<long, TuioObject> objectList;
     private Dictionary<long, TuioCursor> cursorList;
@@ -131,7 +137,42 @@ public class TuioDemo : Form, TuioListener
         client.addTuioListener(this);
 
         client.connect();
+        ConnectToServer();
     }
+    private void ConnectToServer()
+    {
+        try
+        {
+            serverClient = new TcpClient(serverHost, serverPort);
+            serverStream = serverClient.GetStream();
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+
+            StringBuilder completeMessage = new StringBuilder();
+            while ((bytesRead = serverStream.Read(buffer, 0, buffer.Length)) != 0)  // Using Read instead of ReadAsync
+            {
+                completeMessage.Append(Encoding.ASCII.GetString(buffer, 0, bytesRead));
+            }
+
+            // Update UI with received data
+            if (InvokeRequired)
+            {
+                Invoke(new MethodInvoker(delegate {
+                    MessageBox.Show("Received data:\n" + completeMessage.ToString());
+                }));
+            }
+            else
+            {
+                MessageBox.Show("Received data:\n" + completeMessage.ToString());
+            }
+
+        }
+        catch (SocketException e)
+        {
+            MessageBox.Show("SocketException: " + e.Message);
+        }
+    }
+
 
     private void Initialize3DViewer(string file_path)
     {
