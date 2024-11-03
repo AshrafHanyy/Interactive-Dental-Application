@@ -49,6 +49,7 @@ public class TuioDemo : Form, TuioListener
     private Dictionary<long, TuioBlob> blobList;
     private AxisAngleRotation3D modelRotationAngle;
     private RotateTransform3D modelRotation;
+    private bool isDelayActive = false;
 
     public static int width, height, selectedIndex = -1;
     private int window_width = Screen.PrimaryScreen.Bounds.Width;
@@ -158,7 +159,7 @@ public class TuioDemo : Form, TuioListener
         off = new Bitmap(this.ClientSize.Width, this.ClientSize.Height);
         Task.Run(async () => await ReceivePredictionsAsync());
         this.InitializeComponent();
-        Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application2\TUIO Folder\WpfApp1\obj\Debug\4 UpperJawScan.stl");
+        //Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application2\TUIO Folder\WpfApp1\obj\Debug\4 UpperJawScan.stl");
     }
 
     private void Form_KeyDown(object sender, System.Windows.Forms.KeyEventArgs e)
@@ -829,6 +830,7 @@ public class TuioDemo : Form, TuioListener
                                                     @"./Crown Dental APP/2d illustrations/Inlay.png",
                                                         };
                                             }
+                                            ActivateDelay();
                                             break;
                                         case 1:
                                             if (MenuSelectedIndex == 0) //if you select the first option  [FULL COVERGE]
@@ -853,6 +855,7 @@ public class TuioDemo : Form, TuioListener
                                                         @"./Crown Dental APP/2d illustrations/Seven-eighth Crown.png",
                                                         };
                                             }
+                                            ActivateDelay();
                                             break;
 
                                     }
@@ -873,20 +876,23 @@ public class TuioDemo : Form, TuioListener
                                                           @"./Crown Dental APP/2d illustrations/All ceramic crown preparation.png",
                                                         @"./Crown Dental APP/2d illustrations/Full veneer crown.png",
                                                         };
+                                            ActivateDelay();
                                             break;
                                         case 2:
                                             CountMenuItems = 2;
                                             SelectedMenuFlag = 0;
-
+                                            ActivateDelay();
                                             break;
                                         case 3:
 
                                             CountMenuItems = 2;
                                             SelectedMenuFlag = 1;
+                                            ActivateDelay();
                                             break;
                                         case 4:
                                             CountMenuItems = 2;
                                             SelectedMenuFlag = 1;
+                                            ActivateDelay();
                                             break;
                                     }
 
@@ -1020,9 +1026,16 @@ public class TuioDemo : Form, TuioListener
         this.Controls.Remove(mainMenuButton);
         this.mainMenuButton.Dispose();
     }
+    private async void ActivateDelay()
+    {
+        isDelayActive = true;
+        await Task.Delay(3000); // 3-second delay
+        isDelayActive = false;
+    }
 
     public bool AreObjectsIntersecting(TuioObject obj1, TuioObject obj2)
     {
+        if (isDelayActive) return false;
         int obj1X = obj1.getScreenX(width);
         int obj1Y = obj1.getScreenY(height);
         int obj1Size = 260;

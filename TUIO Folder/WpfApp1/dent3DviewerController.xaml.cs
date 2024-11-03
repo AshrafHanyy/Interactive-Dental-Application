@@ -18,7 +18,6 @@ namespace WpfApp1
             InitializeComponent();
             LoadSTLModel(filePath);
             rotationAxis = (AxisAngleRotation3D)FindName("rotation");
-
             timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromMilliseconds(30);
             timer.Tick += Timer_Tick;
@@ -28,8 +27,18 @@ namespace WpfApp1
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            //rotationAxis.Angle += 1; 
-            //if (rotationAxis.Angle >= 360) rotationAxis.Angle = 0;
+            try
+            {
+
+                rotationAxis.Angle += 1;
+                if (rotationAxis.Angle >= 360) rotationAxis.Angle = 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while rotating the model: {ex.Message}");
+                Console.WriteLine($"Exception Type: {ex.GetType()}");
+                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+            }
         }
 
         private void LoadSTLModel(string filePath)
