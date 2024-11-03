@@ -23,6 +23,8 @@ using System.Windows.Forms;
 using System.ComponentModel;
 using System.Collections.Generic;
 using System.Collections;
+using System.Threading.Tasks;
+
 using System.Threading;
 using TUIO;
 using System.IO;
@@ -226,74 +228,85 @@ public class TuioDemo : Form, TuioListener
     }
     public AudioFileReader soundEffect;
     public WaveOutEvent soundEffectOutput;
-    public void PlaySoundEffect(string audioFilePath)
-    {
-        soundEffect = new AudioFileReader(audioFilePath);
-        // Create a wave output device to play the sound effect
-        soundEffectOutput = new WaveOutEvent();
 
-        // Set the output device to use the sound effect as its input
+    public async void PlaySoundEffect(string audioFilePath)
+    {
+        // Introduce a delay of 1 second before playing the sound
+        await Task.Delay(0);
+
+        // Initialize sound effect for playback
+        soundEffect = new AudioFileReader(audioFilePath);
+        soundEffectOutput = new WaveOutEvent
+        {
+            Volume = 0.8f // Set volume if needed
+        };
         soundEffectOutput.Init(soundEffect);
 
-        // Play the sound effect
+        // Play the sound
         soundEffectOutput.Play();
-        //soundEffect.Volume = 0.8f;
-        soundEffectOutput.Volume = 0.8f;
+
+        // Wait for the sound to finish playing
+        while (soundEffectOutput.PlaybackState == PlaybackState.Playing)
+        {
+            await System.Threading.Tasks.Task.Delay(10); // Check playback state every 100 milliseconds
+        }
     }
+
     public int menuMarker = 15;
     private bool hasPlayedSound = false;
-    // Declare a threshold for rotation change (adjust based on your use case)
-    private double rotationThreshold = 10f;  // Example: 15-degree change
+    // Declare a threshold for rotation change
+    private double rotationThreshold = 10f; // Example: 15-degree change
     private double previousRotationAngle = 0f;
+
+    private bool markerVisible = false; // Track visibility state
 
     public void checkrotation(List<CActor> objs, Graphics g, TuioObject o)
     {
-        if (o.SymbolID == menuMarker) // Assuming marker with SymbolID 0 controls the menu
+        if (o.SymbolID == menuMarker) // Assuming marker with SymbolID controls the menu
         {
+            bool isNewMarker = !markerVisible; // Check if this is a new marker appearance
+            markerVisible = true; // Update marker visibility
+
             // Convert the angle to degrees
             double angleDegrees = o.Angle * 180.0 / Math.PI;
-
             // Normalize the angle to be within 0 to 360 degrees
             if (angleDegrees < 0) angleDegrees += 360;
-
             // Reverse the angle direction for correct item selection
             angleDegrees = 360 - angleDegrees;
 
+            // Calculate the rotation difference
             double rotationDifference = Math.Abs(angleDegrees - previousRotationAngle);
+
+            // Introduce a small threshold to avoid minor rotations
+            const double rotationThreshold = 5.0; // Adjust this value as needed
+
+            // Update only if the rotation difference is greater than the threshold
+
             previousRotationAngle = angleDegrees;
 
             // Divide the full circle (360 degrees) into equal sections for each menu item
             double anglePerItem = 360.0 / CountMenuItems;
-
             // Calculate which menu item should be selected
             int newMenuIndex = (int)Math.Floor(angleDegrees / anglePerItem) % CountMenuItems;
 
             // Update the menu selection only if the new index is different from the current one
             if (newMenuIndex != MenuSelectedIndex)
             {
+                // Deselect previous menu item
                 if (MenuSelectedIndex >= 0 && MenuSelectedIndex < CountMenuItems)
                 {
-                    MenuObjs[MenuSelectedIndex].color = 0;  // Deselect previous menu item
+                    MenuObjs[MenuSelectedIndex].color = 0; // Deselect previous menu item
                 }
-
-                // Set color of the new menu item
+                // Select new menu item
                 if (newMenuIndex >= 0 && newMenuIndex < CountMenuItems)
                 {
                     MenuObjs[newMenuIndex].color = 1; // Select new menu item
                 }
-
-                // If the icon has significantly rotated and sound hasn't been played
-                if (!hasPlayedSound && rotationDifference > rotationThreshold)
+                if (rotationDifference > rotationThreshold)
                 {
+                    // Play sound effect
                     PlaySoundEffect("menusound_swipe.mp3");
-                    hasPlayedSound = true;  // Set the flag to prevent repeated plays
                 }
-                else
-                {
-                    // If the rotation is not significant, reset the flag
-                    hasPlayedSound = false;
-                }
-
                 // Update the selected menu index
                 MenuSelectedIndex = newMenuIndex;
 
@@ -301,11 +314,20 @@ public class TuioDemo : Form, TuioListener
                 Invalidate();
             }
 
-            // Optional verbose logging
-            if (verbose)
-            {
-                Console.WriteLine("MenuSelectedIndex: " + MenuSelectedIndex);
-            }
+        }
+        else
+        {
+            // Marker is no longer visible; you can set it to false to track disappearance
+            markerVisible = false;
+        }
+    }
+
+    // Call this method when detecting the marker's disappearance
+    public void HandleMarkerDisappearance(TuioObject o)
+    {
+        if (o.SymbolID == menuMarker)
+        {
+            markerVisible = false; // Reset visibility tracking
         }
     }
 
@@ -404,12 +426,20 @@ public class TuioDemo : Form, TuioListener
     public int CountMenuItems = 2;
     public int MenuSelectedIndex = 0; //item selection
     List<CActor> MenuObjs = new List<CActor>();
-    public void DrawRoundedRectangle(Graphics g, Brush brush, Rectangle rect, int radius, int index)
+    public void DrawRoundedRectangle(Graphics g, bool isSelected, Rectangle rect, int radius, int index)
     {
         using (GraphicsPath path = CreateRoundedRectanglePath(rect, radius))
         {
+            g.FillPath(MenuItemBrush, path);
             // Draw the rounded rectangle background
-            g.FillPath(brush, path);
+            if (isSelected)
+            {
+                using (Pen redPen = new Pen(Color.Red, 5)) // Adjust thickness as needed
+                {
+                    g.DrawPath(redPen, path);
+                }
+            }
+
             DrawImageIfSelected(g, index, path, rect);
         }
     }
@@ -507,10 +537,10 @@ public class TuioDemo : Form, TuioListener
         int padding = 20;
         int availableWidth = ClientSize.Width - (padding * 4);
 
-        int maxWidth = ((availableWidth / CountMenuItems) - 200);
+        int maxWidth = ((availableWidth / CountMenuItems) - 400);
         if (SelectedMenuFlag == 2) // 2 items
         {
-            maxWidth = (availableWidth / CountMenuItems) - 350;
+            maxWidth = (availableWidth / CountMenuItems) - 550;
             MenuIconHeight = 250;
         }
 
@@ -554,7 +584,7 @@ public class TuioDemo : Form, TuioListener
 
             // Define text based on menu item
             string itemText = "";
-            DrawRoundedRectangle(g, (menuobjs[i].color == 0) ? MenuItemBrush : SelectedItemBrush, rect, cornerRadius, i);
+            DrawRoundedRectangle(g, (menuobjs[i].color == 0) ? false : true, rect, cornerRadius, i);
             switch (SelectedMenuFlag)
             {
                 case 0:
@@ -787,6 +817,8 @@ public class TuioDemo : Form, TuioListener
                                             {
                                                 CountMenuItems = 2;
                                                 SelectedMenuFlag = 1; // index of the new menu you're at
+
+
                                             }
                                             else if (MenuSelectedIndex == 1) //if you select the second option  [Interacrooanl RESTORRATIONS]
                                             {
@@ -824,6 +856,41 @@ public class TuioDemo : Form, TuioListener
                                             break;
 
                                     }
+                                }
+
+                                if (obj1.SymbolID == 15 && obj2.SymbolID == 11 && AreObjectsIntersecting(obj1, obj2))
+                                {
+
+                                    switch (SelectedMenuFlag) // which menu are you're at
+                                    {
+                                        case 0://if you're at the first menu 
+
+                                            break;
+                                        case 1:
+                                            CountMenuItems = 2;
+                                            SelectedMenuFlag = 0; // index of the new menu you're at
+                                            imagePaths = new List<string>{
+                                                          @"./Crown Dental APP/2d illustrations/All ceramic crown preparation.png",
+                                                        @"./Crown Dental APP/2d illustrations/Full veneer crown.png",
+                                                        };
+                                            break;
+                                        case 2:
+                                            CountMenuItems = 2;
+                                            SelectedMenuFlag = 0;
+
+                                            break;
+                                        case 3:
+
+                                            CountMenuItems = 2;
+                                            SelectedMenuFlag = 1;
+                                            break;
+                                        case 4:
+                                            CountMenuItems = 2;
+                                            SelectedMenuFlag = 1;
+                                            break;
+                                    }
+
+
                                 }
                             }
                         }
