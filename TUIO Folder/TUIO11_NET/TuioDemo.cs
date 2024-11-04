@@ -69,7 +69,9 @@ public class TuioDemo : Form, TuioListener
 
     private bool fullscreen;
     private bool verbose;
+    private bool isAdmin = false;
 
+    private Image adminImage = Image.FromFile(@"admin.png");
     private Image backgroundImage = Image.FromFile(@"BG_3.jpg");
     private Image backgroundImage2 = Image.FromFile(@"bg.jpg");
     Font font = new Font("Times New Roman", 30.0f);
@@ -81,6 +83,7 @@ public class TuioDemo : Form, TuioListener
     SolidBrush objBrush = new SolidBrush(Color.Silver);
     SolidBrush blbBrush = new SolidBrush(Color.FromArgb(64, 64, 64));
     Pen curPen = new Pen(new SolidBrush(Color.Blue), 1);
+    string message = string.Empty;
 
     List<Point> mymenupoints = new List<Point>();
 
@@ -155,17 +158,40 @@ public class TuioDemo : Form, TuioListener
             }
 
             // Update UI with received data
-            if (InvokeRequired)
+            //if (InvokeRequired)
+            //{
+            //    Invoke(new MethodInvoker(delegate {
+            //        MessageBox.Show("Received data:\n" + completeMessage.ToString());
+            //    }));
+            //}
+            //else
+            //{
+            //    MessageBox.Show("Received data:\n" + completeMessage.ToString());
+            //}
+            String type = completeMessage.ToString();
+            if (type.StartsWith("admin"))
             {
-                Invoke(new MethodInvoker(delegate {
-                    MessageBox.Show("Received data:\n" + completeMessage.ToString());
-                }));
+                // Extract the device name from the completeMessage
+                string deviceName = type.Substring(6).Trim('\'');
+                message = $"Welcome, Admin: {deviceName}";
+                isAdmin = true;
+            }
+            else if (type.StartsWith("login"))
+            {
+                // Extract the device name from the completeMessage
+                string deviceName = type.Substring(6).Trim('\'');
+                message = $"welcome back, {deviceName}! You are logged in.";
+            }
+            else if (type.StartsWith("signup"))
+            {
+                // Extract the device name from the completeMessage
+                string deviceName = type.Substring(7).Trim('\'');
+                message = $"Hello, {deviceName}!";
             }
             else
             {
-                MessageBox.Show("Received data:\n" + completeMessage.ToString());
+                message = "Unrecognized user type.";
             }
-
         }
         catch (SocketException e)
         {
@@ -592,6 +618,11 @@ public class TuioDemo : Form, TuioListener
             maxWidth = (availableWidth / CountMenuItems) - 550;
             MenuIconHeight = 250;
         }
+        if (SelectedMenuFlag == 4) // 2 items
+        {
+            maxWidth = (availableWidth / CountMenuItems) - 200;
+            MenuIconHeight = 250;
+        }
 
         List<CActor> objs = new List<CActor>();
 
@@ -656,17 +687,18 @@ public class TuioDemo : Form, TuioListener
                     break;
                 case 4:
 
-                    switch (i)
+                   if(i == 0)
                     {
-                        case 0:
-                            itemText = "Three Quarter";
-                            break;
-                        case 1:
-                            itemText = "Seven Eighth";
-                            break;
-                        case 2:
-                            itemText = "Pin Moidified";
-                            break;
+                        itemText = "Three Quarter";
+                    }
+                    else if (i==1)
+                    {
+                        itemText = "Seven Eighth";
+                    }
+                   else
+                    {
+                        itemText = "Pin Moidified";
+                    
                     }
                     break;
                 default:
@@ -899,7 +931,7 @@ public class TuioDemo : Form, TuioListener
 
         // Define the dimensions and position for the semi-transparent rounded rectangle
         int boxWidth = 800; // Adjust width as needed
-        int boxHeight = 200; // Adjust height as needed
+        int boxHeight = 300; // Adjust height as needed
         int boxX = (this.window_width / 2) - (boxWidth / 2);
         int boxY = this.ClientRectangle.Top + 20;
 
@@ -926,7 +958,7 @@ public class TuioDemo : Form, TuioListener
 
             g.DrawImage(backgroundImage, new Rectangle(0, 0, width, height));
             g.FillPath(boxBrush, roundedRectPath);
-            RectangleF textRect = new RectangleF(boxX + 10, boxY + 10, boxWidth - 20, boxHeight - 20);
+            RectangleF textRect = new RectangleF(boxX + 10, boxY -50, boxWidth - 20, boxHeight - 20);
 
             // Create a StringFormat for centered alignment
             StringFormat format = new StringFormat
@@ -935,6 +967,13 @@ public class TuioDemo : Form, TuioListener
                 LineAlignment = StringAlignment.Center   // Center vertically
             };
             g.DrawString("Interactive Application for Crown Preparation Learners", titleFont, textBrush, textRect, format);
+            if(message.Length!=0)
+            {
+                textRect = new RectangleF(boxX + 10, boxY + 100, boxWidth - 20, boxHeight - 20);
+                g.DrawString(message, titleFont, textBrush, textRect, format);
+            }
+            //textRect = new RectangleF(boxX + 10, boxY + 100, boxWidth - 20, boxHeight - 20);
+            //g.DrawString("welcome akool", titleFont, textBrush, textRect, format);
             mainmenuflag = checkmainmenu();
             if (mainmenuflag == 2)
             {
@@ -945,6 +984,7 @@ public class TuioDemo : Form, TuioListener
         else if (mainmenuflag == 2)
         {
             g.DrawImage(backgroundImage2, new Rectangle(0, 0, width, height));
+            g.DrawImage(adminImage, new Rectangle(10, 10, 100, 100));
             if (cursorList.Count > 0)
             {
                 lock (cursorList)
