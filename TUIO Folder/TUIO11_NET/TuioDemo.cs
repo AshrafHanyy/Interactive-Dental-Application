@@ -195,7 +195,7 @@ public class TuioDemo : Form, TuioListener
         }
         catch (SocketException e)
         {
-            MessageBox.Show("SocketException: " + e.Message);
+            //MessageBox.Show("SocketException: " + e.Message);
         }
     }
 
@@ -499,7 +499,7 @@ public class TuioDemo : Form, TuioListener
     public int MenuIconHeight = 150;
     public int CountMenuItems = 2;
     public int MenuSelectedIndex = 0; //item selection
-    public int FlagExecuted = 1;
+    public int FlagExecuted = 0;
     List<CActor> MenuObjs = new List<CActor>();
     public void DrawRoundedRectangle(Graphics g, bool isSelected, Rectangle rect, int radius, int index)
     {
@@ -740,6 +740,7 @@ public class TuioDemo : Form, TuioListener
 
     private void check_menu()
     {
+        Console.WriteLine(SelectedMenuFlag);
         switch (SelectedMenuFlag) // which menu are you're at
         {
             case 0://if you're at the first menu 
@@ -974,7 +975,7 @@ public class TuioDemo : Form, TuioListener
             }
             //textRect = new RectangleF(boxX + 10, boxY + 100, boxWidth - 20, boxHeight - 20);
             //g.DrawString("welcome akool", titleFont, textBrush, textRect, format);
-            mainmenuflag = checkmainmenu();
+            mainmenuflag = checkmainmenu(0);
             if (mainmenuflag == 2)
             {
                 this.Controls.Remove(mainMenuButton);
@@ -1035,7 +1036,7 @@ public class TuioDemo : Form, TuioListener
                             foreach (TuioObject obj2 in objectList.Values)
                             {
 
-                                if (obj1.SymbolID == 15 && obj2.SymbolID == 12 && AreObjectsIntersecting(obj1, obj2))
+                                if (obj1.SymbolID == 15 && obj2.SymbolID == 24 && AreObjectsIntersecting(obj1, obj2))
                                 {
 
                                     check_menu();
@@ -1053,7 +1054,7 @@ public class TuioDemo : Form, TuioListener
                                     viewerControl.ChangeBasedOnCommand("Swipe right");
 
                                 }
-                                else if (FlagExecuted == 1 && (obj1.SymbolID == 11 || obj2.SymbolID == 11))
+                                else if (FlagExecuted == 1 && (obj1.SymbolID == 9 || obj2.SymbolID == 9))
                                 {
                                     viewerControl.ChangeBasedOnCommand("Swipe left");
                                 }
@@ -1100,9 +1101,9 @@ public class TuioDemo : Form, TuioListener
 
     }
 
-    public int checkmainmenu()
+    public int checkmainmenu(int flag, string gesture="") // 0 for TUIO and 1 for hand gesture
     {
-        if (objectList.Count > 0)
+        if (objectList.Count > 0 && flag == 0)
         {
             lock (objectList)
             {
@@ -1130,6 +1131,13 @@ public class TuioDemo : Form, TuioListener
                     }
 
                 }
+            }
+        }
+        else if (flag == 1)
+        {
+            if (gesture == "Select")
+            {
+                return 2;
             }
         }
         return 1;
