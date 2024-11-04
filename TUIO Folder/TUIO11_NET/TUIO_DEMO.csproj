@@ -67,6 +67,9 @@
     <Compile Include="TUIO\TuioBlob.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="HelixToolkit.Wpf, Version=2.25.0.0, Culture=neutral, PublicKeyToken=52aa3500039caf0d, processorArchitecture=MSIL">
+      <HintPath>packages\HelixToolkit.Wpf.2.25.0\lib\net462\HelixToolkit.Wpf.dll</HintPath>
+    </Reference>
     <Reference Include="NAudio, Version=1.8.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\NAudio.1.8.2\lib\net35\NAudio.dll</HintPath>
     </Reference>

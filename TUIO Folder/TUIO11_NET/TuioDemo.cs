@@ -39,6 +39,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms.Integration;
 using WpfApp1;
 using System.Windows.Media.Media3D;
+using System.Windows.Threading;
 
 
 public class TuioDemo : Form, TuioListener
@@ -84,7 +85,6 @@ public class TuioDemo : Form, TuioListener
     List<Point> mymenupoints = new List<Point>();
 
 
-    //var viewerControl = new Dental3DViewerControl();
     //elementHost1.Child = viewerControl;
 
     Bitmap off;
@@ -176,20 +176,26 @@ public class TuioDemo : Form, TuioListener
 
     private void Initialize3DViewer(string file_path)
     {
-        // Initialize the WPF 3D viewer control and ElementHost
-        wpfHost = new ElementHost
+    Thread viewerThread = new Thread(() =>
+    {
+        // Initialize the viewer control and assign it to the class-level variable
+        viewerControl = new WpfApp1.dent3DviewerController(file_path);
+
+        var viewerWindow = new System.Windows.Window
         {
-            Dock = DockStyle.Fill // Fill the entire form
+            Title = "3D Viewer",
+            Content = viewerControl, // Use the class-level viewerControl
+            WindowState = System.Windows.WindowState.Maximized
         };
 
-        // Create instance of the 3D viewer control from WPF
-        viewerControl = new dent3DviewerController(file_path);
+        // Show the window and start the dispatcher loop for this thread
+        viewerWindow.Show();
+        Dispatcher.Run();
+    });
 
-        // Assign the WPF control to the ElementHost
-        wpfHost.Child = viewerControl;
-
-        // Add the ElementHost to the Windows Forms control
-        this.Controls.Add(wpfHost);
+    viewerThread.SetApartmentState(ApartmentState.STA); // Required for WPF
+    viewerThread.IsBackground = true;
+    viewerThread.Start();
     }
 
 
@@ -379,7 +385,7 @@ public class TuioDemo : Form, TuioListener
         // Existing verbose logging for other object data
         if (verbose)
         {
-            Console.WriteLine("set obj " + o.SymbolID + " (" + o.SessionID + ") " + o.X + " " + o.Y + " " + o.Angle + " " + o.MotionSpeed + " " + o.RotationSpeed + " " + o.MotionAccel + " " + o.RotationAccel);
+            //Console.WriteLine("set obj " + o.SymbolID + " (" + o.SessionID + ") " + o.X + " " + o.Y + " " + o.Angle + " " + o.MotionSpeed + " " + o.RotationSpeed + " " + o.MotionAccel + " " + o.RotationAccel);
         }
     }
 
@@ -408,7 +414,7 @@ public class TuioDemo : Form, TuioListener
         {
             objectList.Remove(o.SessionID);
         }
-        if (verbose) Console.WriteLine("del obj " + o.SymbolID + " (" + o.SessionID + ")");
+        //if (verbose) //Console.WriteLine("del obj " + o.SymbolID + " (" + o.SessionID + ")");
     }
 
     public void addTuioCursor(TuioCursor c)
@@ -417,7 +423,7 @@ public class TuioDemo : Form, TuioListener
         {
             cursorList.Add(c.SessionID, c);
         }
-        if (verbose) Console.WriteLine("add cur " + c.CursorID + " (" + c.SessionID + ") " + c.X + " " + c.Y);
+        //if (verbose) Console.WriteLine("add cur " + c.CursorID + " (" + c.SessionID + ") " + c.X + " " + c.Y);
     }
 
     public void updateTuioCursor(TuioCursor c)
@@ -467,6 +473,7 @@ public class TuioDemo : Form, TuioListener
     public int MenuIconHeight = 150;
     public int CountMenuItems = 2;
     public int MenuSelectedIndex = 0; //item selection
+    public int FlagExecuted = 1;
     List<CActor> MenuObjs = new List<CActor>();
     public void DrawRoundedRectangle(Graphics g, bool isSelected, Rectangle rect, int radius, int index)
     {
@@ -699,6 +706,125 @@ public class TuioDemo : Form, TuioListener
         return g;
     }
 
+    private void check_menu()
+    {
+        switch (SelectedMenuFlag) // which menu are you're at
+        {
+            case 0://if you're at the first menu 
+                if (MenuSelectedIndex == 0) //if you select the first option [EXTRACORONAL RESTORRATIONS]
+                {
+                    CountMenuItems = 2;
+                    SelectedMenuFlag = 1; // index of the new menu you're at
+
+                }
+                else if (MenuSelectedIndex == 1) //if you select the second option  [Interacrooanl RESTORRATIONS]
+                {
+
+                    CountMenuItems = 1;
+                    SelectedMenuFlag = 2;
+                    imagePaths = new List<string>{
+                                                    @"./Crown Dental APP/2d illustrations/Inlay.png",
+                                                        };
+                }
+                ActivateDelay();
+                break;
+            case 1:
+                if (MenuSelectedIndex == 0) //if you select the first option  [FULL COVERGE]
+                {
+                    CountMenuItems = 2;
+                    SelectedMenuFlag = 3; // index of the new menu you're at
+                    imagePaths = new List<string>{
+                                                          @"./Crown Dental APP/2d illustrations/All ceramic crown preparation.png",
+                                                        @"./Crown Dental APP/2d illustrations/Full veneer crown.png",
+                                                        };
+                }
+                else if (MenuSelectedIndex == 1) //if you select the second option [Partial COVERGE]
+                {
+
+                    CountMenuItems = 3;
+                    SelectedMenuFlag = 4;
+                    imagePaths = new List<string>{
+                                                        @"./Crown Dental APP/2d illustrations/Anterior three quarter crown.png",
+                                                        @"./Crown Dental APP/2d illustrations/Pin-Modified three quarter crown.png",
+                                                        @"./Crown Dental APP/2d illustrations/Seven-eighth Crown.png",
+                                                        };
+                }
+                ActivateDelay();
+                break;
+            case 2:
+                if (FlagExecuted == 0)
+                {
+                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application3\TUIO Folder\WpfApp1\obj\Debug\Inlay.stl");
+                    FlagExecuted = 1;
+                }
+                break;
+            case 3:
+                if (MenuSelectedIndex == 0 && FlagExecuted == 0)
+                {
+                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application3\TUIO Folder\WpfApp1\obj\Debug\All ceramic crown preparation.stl");
+                    FlagExecuted = 1;
+                }
+                else if (MenuSelectedIndex == 1 && FlagExecuted == 0)
+                {
+                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application3\TUIO Folder\WpfApp1\obj\Debug\Full veneer crown preparation.stl");
+                    FlagExecuted = 1;
+                }
+                break;
+            case 4:
+                if (MenuSelectedIndex == 0 && FlagExecuted == 0)
+                {
+                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application3\TUIO Folder\WpfApp1\obj\Debug\Anterior Three quarter crown preparation .stl");
+                    FlagExecuted = 1;
+                }
+                else if (MenuSelectedIndex == 1 && FlagExecuted == 0)
+                {
+                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application3\TUIO Folder\WpfApp1\obj\Debug\Pin modified three-quarter crown preparation.stl");
+                    FlagExecuted = 1;
+                }
+                else if (MenuSelectedIndex == 2 && FlagExecuted == 0)
+                {
+                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application3\TUIO Folder\WpfApp1\obj\Debug\Seven-eighth crown preparation.stl");
+                    FlagExecuted = 1;
+                }
+                break;
+        }
+    }
+
+    private void check_selection()
+    {
+        switch (SelectedMenuFlag) // which menu are you're at
+        {
+            case 0://if you're at the first menu 
+
+                break;
+            case 1:
+                CountMenuItems = 2;
+                SelectedMenuFlag = 0; // index of the new menu you're at
+                imagePaths = new List<string>{
+                                                          @"./Crown Dental APP/2d illustrations/All ceramic crown preparation.png",
+                                                        @"./Crown Dental APP/2d illustrations/Full veneer crown.png",
+                                                        };
+                ActivateDelay();
+                break;
+            case 2:
+                CountMenuItems = 2;
+                SelectedMenuFlag = 0;
+                ActivateDelay();
+                break;
+            case 3:
+
+                CountMenuItems = 2;
+                SelectedMenuFlag = 1;
+                ActivateDelay();
+                break;
+            case 4:
+                CountMenuItems = 2;
+                SelectedMenuFlag = 1;
+                ActivateDelay();
+                break;
+        }
+    }
+
     private async Task ReceivePredictionsAsync()
     {
         try
@@ -718,15 +844,36 @@ public class TuioDemo : Form, TuioListener
                         // Convert received bytes to string
                         string responseData = Encoding.ASCII.GetString(dataToReceive, 0, bytesRead);
                         Console.WriteLine("Received Prediction: " + responseData);
-                        if (responseData == "Swipe right")
+                        if (responseData == "Swipe right" && FlagExecuted == 1)
                         {
                             Console.WriteLine("Inside right");
-                            viewerControl.RotateBasedOnCommand("Swipe right");
+                            viewerControl.ChangeBasedOnCommand("Swipe right");
                         }
-                        else if (responseData == "Swipe left")
+                        else if (responseData == "Swipe right" && FlagExecuted == 0)
+                        {
+                            // logic
+                        }
+                        else if (responseData == "Swipe left" && FlagExecuted == 1)
                         {
                             Console.WriteLine("Inside left");
-                            viewerControl.RotateBasedOnCommand("Swipe left");
+                            viewerControl.ChangeBasedOnCommand("Swipe left");
+                        }
+                        else if (responseData == "Swipe left" && FlagExecuted == 0)
+                        {
+                            // logic
+                        }
+                        else if (responseData == "Zoom In" && FlagExecuted == 1)
+                        {
+                            Console.WriteLine("Insidd zome in");
+                            viewerControl.ChangeBasedOnCommand("Zoom in");
+                        }
+                        else if (responseData == "Zoom out" && FlagExecuted == 1)
+                        {
+                            viewerControl.ChangeBasedOnCommand("Zoom out");
+                        }
+                        else if (responseData == "Select" && FlagExecuted == 0)
+                        {
+                            check_selection();
                         }
                     }
                 }
@@ -744,7 +891,6 @@ public class TuioDemo : Form, TuioListener
         Graphics g = pevent.Graphics;
         //g.FillRectangle(bgrBrush, new Rectangle(0, 0, width, height));
         g.Clear(Color.WhiteSmoke);
-
         ////////////////////////////////////////////////////
         ///////////////////////
         // Define a rectangle for the title text
@@ -852,111 +998,28 @@ public class TuioDemo : Form, TuioListener
                                 if (obj1.SymbolID == 15 && obj2.SymbolID == 12 && AreObjectsIntersecting(obj1, obj2))
                                 {
 
-                                    switch (SelectedMenuFlag) // which menu are you're at
-                                    {
-                                        case 0://if you're at the first menu 
-                                            if (MenuSelectedIndex == 0) //if you select the first option [EXTRACORONAL RESTORRATIONS]
-                                            {
-                                                CountMenuItems = 2;
-                                                SelectedMenuFlag = 1; // index of the new menu you're at
-
-
-                                            }
-                                            else if (MenuSelectedIndex == 1) //if you select the second option  [Interacrooanl RESTORRATIONS]
-                                            {
-
-                                                CountMenuItems = 1;
-                                                SelectedMenuFlag = 2;
-                                                imagePaths = new List<string>{
-                                                    @"./Crown Dental APP/2d illustrations/Inlay.png",
-                                                        };
-                                            }
-                                            ActivateDelay();
-                                            break;
-                                        case 1:
-                                            if (MenuSelectedIndex == 0) //if you select the first option  [FULL COVERGE]
-                                            {
-                                                CountMenuItems = 2;
-                                                SelectedMenuFlag = 3; // index of the new menu you're at
-                                                imagePaths = new List<string>{
-                                                          @"./Crown Dental APP/2d illustrations/All ceramic crown preparation.png",
-                                                        @"./Crown Dental APP/2d illustrations/Full veneer crown.png",
-                                                        };
-                                            }
-                                            else if (MenuSelectedIndex == 1) //if you select the second option [Partial COVERGE]
-                                            {
-
-                                                CountMenuItems = 3;
-                                                SelectedMenuFlag = 4;
-                                                imagePaths = new List<string>{
-                                                        @"./Crown Dental APP/2d illustrations/Anterior three quarter crown.png",
-                                                        @"./Crown Dental APP/2d illustrations/Pin-Modified three quarter crown.png",
-                                                        @"./Crown Dental APP/2d illustrations/Seven-eighth Crown.png",
-                                                        };
-                                            }
-                                            ActivateDelay();
-                                            break;
-                                        case 3:
-                                            if (MenuSelectedIndex == 0)
-                                            {
-                                                Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application3\TUIO Folder\WpfApp1\obj\Debug\All ceramic crown preparation.stl");
-                                            }
-                                            else if (MenuSelectedIndex == 1)
-                                            {
-                                                Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application3\TUIO Folder\WpfApp1\obj\Debug\Full veneer crown preparation.stl");
-                                            }
-                                            break;
-                                        case 4:
-                                            if (MenuSelectedIndex == 0)
-                                            {
-                                                Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application3\TUIO Folder\WpfApp1\obj\Debug\Anterior Three quarter crown preparation .stl");
-                                            }
-                                            else if (MenuSelectedIndex == 1)
-                                            {
-                                                Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application3\TUIO Folder\WpfApp1\obj\Debug\Pin modified three-quarter crown preparation.stl");
-                                            }
-                                            else if (MenuSelectedIndex == 2)
-                                            {
-                                                Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application3\TUIO Folder\WpfApp1\obj\Debug\Seven-eighth crown preparation.stl");
-                                            }
-                                            break;
-                                    }
+                                    check_menu();
                                 }
+                                if (FlagExecuted == 1 && (obj1.SymbolID == 5 || obj2.SymbolID == 5))
+                                {
+                                    viewerControl.ChangeBasedOnCommand("Zoom out");
+                                }
+                                else if (FlagExecuted == 1 && (obj1.SymbolID == 8 || obj2.SymbolID == 8))
+                                {
+                                    viewerControl.ChangeBasedOnCommand("Zoom in");
+                                }
+                                else if (FlagExecuted == 1 && (obj1.SymbolID == 3 || obj2.SymbolID == 3))
+                                {
+                                    viewerControl.ChangeBasedOnCommand("Swipe right");
 
+                                }
+                                else if (FlagExecuted == 1 && (obj1.SymbolID == 11 || obj2.SymbolID == 11))
+                                {
+                                    viewerControl.ChangeBasedOnCommand("Swipe left");
+                                }
                                 if (obj1.SymbolID == 15 && obj2.SymbolID == 11 && AreObjectsIntersecting(obj1, obj2))
                                 {
-
-                                    switch (SelectedMenuFlag) // which menu are you're at
-                                    {
-                                        case 0://if you're at the first menu 
-
-                                            break;
-                                        case 1:
-                                            CountMenuItems = 2;
-                                            SelectedMenuFlag = 0; // index of the new menu you're at
-                                            imagePaths = new List<string>{
-                                                          @"./Crown Dental APP/2d illustrations/All ceramic crown preparation.png",
-                                                        @"./Crown Dental APP/2d illustrations/Full veneer crown.png",
-                                                        };
-                                            ActivateDelay();
-                                            break;
-                                        case 2:
-                                            CountMenuItems = 2;
-                                            SelectedMenuFlag = 0;
-                                            ActivateDelay();
-                                            break;
-                                        case 3:
-
-                                            CountMenuItems = 2;
-                                            SelectedMenuFlag = 1;
-                                            ActivateDelay();
-                                            break;
-                                        case 4:
-                                            CountMenuItems = 2;
-                                            SelectedMenuFlag = 1;
-                                            ActivateDelay();
-                                            break;
-                                    }
+                                    check_selection();
                                 }
                             }
                         }
