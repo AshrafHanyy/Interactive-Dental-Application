@@ -195,34 +195,35 @@ public class TuioDemo : Form, TuioListener
         }
         catch (SocketException e)
         {
-            MessageBox.Show("SocketException: " + e.Message);
+            //MessageBox.Show("SocketException: " + e.Message);
         }
     }
 
 
-    private void Initialize3DViewer(string file_path)
+    private void Initialize3DViewer(string file_path, string image_path)
     {
-    Thread viewerThread = new Thread(() =>
-    {
-        // Initialize the viewer control and assign it to the class-level variable
-        viewerControl = new WpfApp1.dent3DviewerController(file_path);
-
-        var viewerWindow = new System.Windows.Window
+        Thread viewerThread = new Thread(() =>
         {
-            Title = "3D Viewer",
-            Content = viewerControl, // Use the class-level viewerControl
-            WindowState = System.Windows.WindowState.Maximized
-        };
+            // Initialize the viewer control and assign it to the class-level variable
+            viewerControl = new WpfApp1.dent3DviewerController(file_path, image_path);
 
-        // Show the window and start the dispatcher loop for this thread
-        viewerWindow.Show();
-        Dispatcher.Run();
-    });
+            var viewerWindow = new System.Windows.Window
+            {
+                Title = "3D Viewer",
+                Content = viewerControl,
+                WindowState = System.Windows.WindowState.Maximized
+            };
 
-    viewerThread.SetApartmentState(ApartmentState.STA); // Required for WPF
-    viewerThread.IsBackground = true;
-    viewerThread.Start();
+            // Show the window and start the dispatcher loop for this thread
+            viewerWindow.Show();
+            Dispatcher.Run();
+        });
+
+        viewerThread.SetApartmentState(ApartmentState.STA); // Required for WPF
+        viewerThread.IsBackground = true;
+        viewerThread.Start();
     }
+
 
 
     private void TuioDemo_Load(object sender, EventArgs e)
@@ -499,7 +500,7 @@ public class TuioDemo : Form, TuioListener
     public int MenuIconHeight = 150;
     public int CountMenuItems = 2;
     public int MenuSelectedIndex = 0; //item selection
-    public int FlagExecuted = 1;
+    public int FlagExecuted = 0;
     List<CActor> MenuObjs = new List<CActor>();
     public void DrawRoundedRectangle(Graphics g, bool isSelected, Rectangle rect, int radius, int index)
     {
@@ -687,18 +688,18 @@ public class TuioDemo : Form, TuioListener
                     break;
                 case 4:
 
-                   if(i == 0)
+                    if (i == 0)
                     {
                         itemText = "Three Quarter";
                     }
-                    else if (i==1)
+                    else if (i == 1)
                     {
                         itemText = "Seven Eighth";
                     }
-                   else
+                    else
                     {
                         itemText = "Pin Moidified";
-                    
+
                     }
                     break;
                 default:
@@ -740,6 +741,7 @@ public class TuioDemo : Form, TuioListener
 
     private void check_menu()
     {
+        string pa = @"./Crown Dental APP/2d illustrations/Inlay.png";
         switch (SelectedMenuFlag) // which menu are you're at
         {
             case 0://if you're at the first menu 
@@ -786,36 +788,37 @@ public class TuioDemo : Form, TuioListener
             case 2:
                 if (FlagExecuted == 0)
                 {
-                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application3\TUIO Folder\WpfApp1\obj\Debug\Inlay.stl");
+                    //"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\bin\Debug\Crown Dental APP\2d illustrations\Anterior three quarter crown.png"
+                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Inlay.stl", pa);
                     FlagExecuted = 1;
                 }
                 break;
             case 3:
                 if (MenuSelectedIndex == 0 && FlagExecuted == 0)
                 {
-                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application3\TUIO Folder\WpfApp1\obj\Debug\All ceramic crown preparation.stl");
+                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\All ceramic crown preparation.stl", pa);
                     FlagExecuted = 1;
                 }
                 else if (MenuSelectedIndex == 1 && FlagExecuted == 0)
                 {
-                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application3\TUIO Folder\WpfApp1\obj\Debug\Full veneer crown preparation.stl");
+                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Full veneer crown preparation.stl", pa);
                     FlagExecuted = 1;
                 }
                 break;
             case 4:
                 if (MenuSelectedIndex == 0 && FlagExecuted == 0)
                 {
-                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application3\TUIO Folder\WpfApp1\obj\Debug\Anterior Three quarter crown preparation .stl");
+                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Anterior Three quarter crown preparation .stl", pa);
                     FlagExecuted = 1;
                 }
                 else if (MenuSelectedIndex == 1 && FlagExecuted == 0)
                 {
-                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application3\TUIO Folder\WpfApp1\obj\Debug\Pin modified three-quarter crown preparation.stl");
+                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Pin modified three-quarter crown preparation.stl", pa);
                     FlagExecuted = 1;
                 }
                 else if (MenuSelectedIndex == 2 && FlagExecuted == 0)
                 {
-                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application3\TUIO Folder\WpfApp1\obj\Debug\Seven-eighth crown preparation.stl");
+                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Seven-eighth crown preparation.stl", pa);
                     FlagExecuted = 1;
                 }
                 break;
@@ -958,7 +961,7 @@ public class TuioDemo : Form, TuioListener
 
             g.DrawImage(backgroundImage, new Rectangle(0, 0, width, height));
             g.FillPath(boxBrush, roundedRectPath);
-            RectangleF textRect = new RectangleF(boxX + 10, boxY -50, boxWidth - 20, boxHeight - 20);
+            RectangleF textRect = new RectangleF(boxX + 10, boxY - 50, boxWidth - 20, boxHeight - 20);
 
             // Create a StringFormat for centered alignment
             StringFormat format = new StringFormat
@@ -967,7 +970,7 @@ public class TuioDemo : Form, TuioListener
                 LineAlignment = StringAlignment.Center   // Center vertically
             };
             g.DrawString("Interactive Application for Crown Preparation Learners", titleFont, textBrush, textRect, format);
-            if(message.Length!=0)
+            if (message.Length != 0)
             {
                 textRect = new RectangleF(boxX + 10, boxY + 100, boxWidth - 20, boxHeight - 20);
                 g.DrawString(message, titleFont, textBrush, textRect, format);
@@ -1056,6 +1059,14 @@ public class TuioDemo : Form, TuioListener
                                 else if (FlagExecuted == 1 && (obj1.SymbolID == 11 || obj2.SymbolID == 11))
                                 {
                                     viewerControl.ChangeBasedOnCommand("Swipe left");
+                                }
+                                else if (FlagExecuted == 1 && (obj1.SymbolID == 1 || obj2.SymbolID == 1))
+                                {
+                                    viewerControl.ChangeBasedOnCommand("Swipe up");
+                                }
+                                else if (FlagExecuted == 1 && (obj1.SymbolID == 2 || obj2.SymbolID == 2))
+                                {
+                                    viewerControl.ChangeBasedOnCommand("Swipe down");
                                 }
                                 if (obj1.SymbolID == 15 && obj2.SymbolID == 11 && AreObjectsIntersecting(obj1, obj2))
                                 {
@@ -1216,6 +1227,32 @@ public class TuioDemo : Form, TuioListener
 
     public static void Main(String[] argv)
     {
+        try
+        {
+            string exePath = @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\reacTIVision-1.5.1-win64 (1)\reacTIVision-1.5.1-win64\reacTIVision.exe";
+
+            // Get the process name (remove the file extension for comparison)
+            string processName = System.IO.Path.GetFileNameWithoutExtension(exePath);
+
+            // Check if the process is already running
+            var runningProcesses = System.Diagnostics.Process.GetProcessesByName(processName);
+
+            if (runningProcesses.Length > 0)
+            {
+                Console.WriteLine($"The process '{processName}' is already running.");
+            }
+            else
+            {
+                // Start the process if it's not running
+                System.Diagnostics.Process.Start(exePath);
+                Console.WriteLine($"Started process '{processName}'.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error starting reacTIVision.exe: {ex.Message}");
+        }
+
         int port = 0;
         switch (argv.Length)
         {
