@@ -18,6 +18,7 @@ C:\Users\Administrator\Source\Repos\Interactive-Dental-Application2\TUIO Folder\
 C:\Users\Administrator\Source\Repos\Interactive-Dental-Application2\TUIO Folder\WpfApp1\obj\Debug\WpfApp1.csproj.Up2Date
 C:\Users\Administrator\Source\Repos\Interactive-Dental-Application2\TUIO Folder\WpfApp1\obj\Debug\WpfApp1.exe
 C:\Users\Administrator\Source\Repos\Interactive-Dental-Application2\TUIO Folder\WpfApp1\obj\Debug\WpfApp1.pdb
+<<<<<<< HEAD
 C:\Users\Administrator\Source\Repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\bin\Debug\WpfApp1.exe.config
 C:\Users\Administrator\Source\Repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\bin\Debug\WpfApp1.exe
 C:\Users\Administrator\Source\Repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\bin\Debug\WpfApp1.pdb
@@ -38,3 +39,46 @@ C:\Users\Administrator\Source\Repos\Interactive-Dental-Application\TUIO Folder\W
 C:\Users\Administrator\Source\Repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\WpfApp1.csproj.Up2Date
 C:\Users\Administrator\Source\Repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\WpfApp1.exe
 C:\Users\Administrator\Source\Repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\WpfApp1.pdb
+=======
+C:\Users\MSI SWORD\Source\Repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\bin\Debug\WpfApp1.exe.config
+C:\Users\MSI SWORD\Source\Repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\bin\Debug\WpfApp1.exe
+C:\Users\MSI SWORD\Source\Repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\bin\Debug\WpfApp1.pdb
+C:\Users\MSI SWORD\Source\Repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\bin\Debug\HelixToolkit.Wpf.dll
+C:\Users\MSI SWORD\Source\Repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\bin\Debug\HelixToolkit.Wpf.xml
+C:\Users\MSI SWORD\Source\Repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\WpfApp1.csproj.AssemblyReference.cache
+C:\Users\MSI SWORD\Source\Repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\dent3DviewerController.baml
+C:\Users\MSI SWORD\Source\Repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\dent3DviewerController.g.cs
+C:\Users\MSI SWORD\Source\Repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\MainWindow.g.cs
+C:\Users\MSI SWORD\Source\Repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\App.g.cs
+C:\Users\MSI SWORD\Source\Repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\WpfApp1_MarkupCompile.cache
+C:\Users\MSI SWORD\Source\Repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\WpfApp1_MarkupCompile.lref
+C:\Users\MSI SWORD\Source\Repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\MainWindow.baml
+C:\Users\MSI SWORD\Source\Repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\WpfApp1.g.resources
+C:\Users\MSI SWORD\Source\Repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\WpfApp1.Properties.Resources.resources
+C:\Users\MSI SWORD\Source\Repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\WpfApp1.csproj.GenerateResource.cache
+C:\Users\MSI SWORD\Source\Repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\WpfApp1.csproj.CoreCompileInputs.cache
+C:\Users\MSI SWORD\Source\Repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\WpfApp1.csproj.Up2Date
+C:\Users\MSI SWORD\Source\Repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\WpfApp1.exe
+C:\Users\MSI SWORD\Source\Repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\WpfApp1.pdb
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\WpfApp1\bin\Debug\WpfApp1.exe.config
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\WpfApp1\bin\Debug\WpfApp1.exe
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\WpfApp1\bin\Debug\WpfApp1.pdb
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\WpfApp1\bin\Debug\HelixToolkit.Wpf.dll
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\WpfApp1\bin\Debug\HelixToolkit.Wpf.xml
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\WpfApp1.csproj.AssemblyReference.cache
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\WpfApp1.csproj.SuggestedBindingRedirects.cache
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\dent3DviewerController.baml
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\dent3DviewerController.g.cs
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\MainWindow.g.cs
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\App.g.cs
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\WpfApp1_MarkupCompile.cache
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\WpfApp1_MarkupCompile.lref
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\MainWindow.baml
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\WpfApp1.g.resources
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\WpfApp1.Properties.Resources.resources
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\WpfApp1.csproj.GenerateResource.cache
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\WpfApp1.csproj.CoreCompileInputs.cache
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\WpfApp1.csproj.CopyComplete
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\WpfApp1.exe
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\WpfApp1.pdb
+>>>>>>> 49ed941e3a8a07d7311462fc1b4b9c47f4786a97

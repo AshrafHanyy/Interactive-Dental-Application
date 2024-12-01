@@ -2,14 +2,17 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:helix="http://helix-toolkit.org/wpf"
-        Height="450" Width="800"
-        x:Name="outerGrid">
-    <Grid x:Name="outerGrid2">
+        Height="450" Width="800">
+    <Grid>
+        <!-- Define a split grid with two equal columns -->
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
+            <!-- Left column for the 3D model -->
             <ColumnDefinition Width="*" />
+            <!-- Right column for the 2D image -->
         </Grid.ColumnDefinitions>
 
+        <!-- 3D Model Viewport -->
         <helix:HelixViewport3D x:Name="viewport" Grid.Column="0">
             <!-- Default lighting for the 3D model -->
             <helix:DefaultLights />

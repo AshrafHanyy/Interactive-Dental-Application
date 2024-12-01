@@ -4,16 +4,28 @@
 winexe
 C#
 .cs
+<<<<<<< HEAD
 C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\
+=======
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\
+>>>>>>> 49ed941e3a8a07d7311462fc1b4b9c47f4786a97
 WpfApp1
 none
 false
 DEBUG;TRACE
+<<<<<<< HEAD
 C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\App.xaml
 21167210587
 
 6-1494475737
 14757552964
+=======
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\WpfApp1\App.xaml
+21167210587
+
+6-1494475737
+14955512249
+>>>>>>> 49ed941e3a8a07d7311462fc1b4b9c47f4786a97
 dent3DviewerController.xaml;MainWindow.xaml;
 
 False
