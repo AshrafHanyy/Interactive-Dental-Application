@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -9,23 +10,49 @@ namespace WpfApp1
 {
     public partial class dent3DviewerController : UserControl
     {
-        private PerspectiveCamera camera;
+        private PerspectiveCamera _camera;
+        private Transform3DGroup _transformGroup = new Transform3DGroup();
+        private double _currentRotationAngle = 0;
+        private double _currentVerticalRotationAngle = 0;
 
-        public dent3DviewerController(string filePath)
+        public dent3DviewerController(string filePath, string imagePath)
         {
             InitializeComponent();
-            LoadSTLModel(filePath);
 
-            // Initialize the camera
-            camera = new PerspectiveCamera
+            CreateSplitView(filePath, imagePath);
+        }
+
+        private void CreateSplitView(string modelFilePath, string imagePath)
+        {
+            imagePath = @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\bin\Debug\Crown Dental APP\2d illustrations\Anterior three quarter crown.png";
+            if (File.Exists(modelFilePath))
             {
-                Position = new Point3D(0, 0, 500),
+                LoadSTLModel(modelFilePath);
+            }
+            else
+            {
+                MessageBox.Show($"3D model file not found: {modelFilePath}");
+            }
+
+            _camera = new PerspectiveCamera
+            {
+                Position = new Point3D(0, 0, 300),
                 LookDirection = new Vector3D(0, 0, -1),
                 UpDirection = new Vector3D(0, 1, 0),
-                FieldOfView = 45
+                FieldOfView = 60
             };
-            viewport.Camera = camera;
+            viewport.Camera = _camera;
+
+            if (File.Exists(imagePath))
+            {
+                imageViewer.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri(imagePath, UriKind.Absolute));
+            }
+            else
+            {
+                MessageBox.Show($"Image file not found: {imagePath}");
+            }
         }
+
 
         private void LoadSTLModel(string filePath)
         {
@@ -34,7 +61,21 @@ namespace WpfApp1
                 var stlReader = new StLReader();
                 Model3DGroup model = stlReader.Read(filePath);
 
-                // Apply white material to the model
+                Rect3D bounds = model.Bounds;
+                double maxDimension = Math.Max(bounds.SizeX, Math.Max(bounds.SizeY, bounds.SizeZ));
+
+                double scaleFactor = 150 / maxDimension;
+                Transform3DGroup transformGroup = new Transform3DGroup();
+                transformGroup.Children.Add(new ScaleTransform3D(scaleFactor, scaleFactor, scaleFactor));
+
+                transformGroup.Children.Add(new TranslateTransform3D(
+                    -bounds.X - bounds.SizeX / 2,
+                    -bounds.Y - bounds.SizeY / 2,
+                    -bounds.Z - bounds.SizeZ / 2
+                ));
+
+                model.Transform = transformGroup;
+
                 var material = new DiffuseMaterial(new SolidColorBrush(Colors.White));
                 foreach (var geometry in model.Children)
                 {
@@ -45,12 +86,6 @@ namespace WpfApp1
                     }
                 }
 
-                // Initialize a Transform3DGroup to allow cumulative transformations
-                Transform3DGroup transformGroup = new Transform3DGroup();
-                transformGroup.Children.Add(new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(0, 1, 0), 0)));
-                model.Transform = transformGroup;
-
-                // Set the model content to the viewport
                 modelVisual.Content = model;
             }
             catch (Exception ex)
@@ -59,21 +94,29 @@ namespace WpfApp1
             }
         }
 
+
+
         public void ChangeBasedOnCommand(string command)
         {
             switch (command)
             {
+                case "Swipe up":
+                    RotateUpDown(5);
+                    break;
+                case "Swipe down":
+                    RotateUpDown(-5);
+                    break;
                 case "Swipe right":
-                    Rotate(90);
+                    Rotate(5);
                     break;
                 case "Swipe left":
-                    Rotate(-90);
+                    Rotate(-5);
                     break;
                 case "Zoom in":
-                    Zoom_in();
+                    ZoomIn();
                     break;
                 case "Zoom out":
-                    Zoom_out();
+                    ZoomOut();
                     break;
             }
         }
@@ -82,42 +125,63 @@ namespace WpfApp1
         {
             Dispatcher.Invoke(() =>
             {
-                if (modelVisual.Content.Transform is Transform3DGroup transformGroup)
+                if (modelVisual.Content != null)
                 {
-                    // Clear previous rotations to reset to the base orientation
-                    transformGroup.Children.Clear();
+                    _currentRotationAngle += degrees;
 
-                    // Apply a fixed 90-degree rotation on the Y-axis
-                    var rotation = new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(0, 1, 0), degrees));
-                    transformGroup.Children.Add(rotation);
+                    var rotation = new AxisAngleRotation3D(new Vector3D(0, 1, 0), degrees);
+                    var rotateTransform = new RotateTransform3D(rotation);
+
+                    _transformGroup.Children.Add(rotateTransform);
+
+                    modelVisual.Transform = _transformGroup;
                 }
 
-                viewport.InvalidateVisual(); // Refresh the viewport to apply the transformation
+                viewport.InvalidateVisual();
+            });
+        }
+
+        private void RotateUpDown(double degrees)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                if (modelVisual.Content != null)
+                {
+                    _currentVerticalRotationAngle += degrees;
+
+                    var rotation = new AxisAngleRotation3D(new Vector3D(1, 0, 0), degrees);
+                    var rotateTransform = new RotateTransform3D(rotation);
+
+                    _transformGroup.Children.Add(rotateTransform);
+
+                    modelVisual.Transform = _transformGroup;
+                }
+
+                viewport.InvalidateVisual();
             });
         }
 
 
-        private void Zoom_in()
+
+        private void ZoomIn()
         {
             Dispatcher.Invoke(() =>
             {
-                Console.WriteLine("Inside function");
-                if (camera.Position.Z > 100)
+                if (_camera.Position.Z > 100)
                 {
-                    Console.WriteLine("Inside if");
-                    camera.Position = new Point3D(camera.Position.X, camera.Position.Y, camera.Position.Z - 50);
+                    _camera.Position = new Point3D(_camera.Position.X, _camera.Position.Y, _camera.Position.Z - 50);
                     viewport.InvalidateVisual();
                 }
             });
         }
 
-        private void Zoom_out()
+        private void ZoomOut()
         {
             Dispatcher.Invoke(() =>
             {
-                if (camera.Position.Z < 1000)
+                if (_camera.Position.Z < 1000)
                 {
-                    camera.Position = new Point3D(camera.Position.X, camera.Position.Y, camera.Position.Z + 50);
+                    _camera.Position = new Point3D(_camera.Position.X, _camera.Position.Y, _camera.Position.Z + 50);
                     viewport.InvalidateVisual();
                 }
             });
