@@ -40,7 +40,7 @@ using System.Windows.Forms.Integration;
 using WpfApp1;
 using System.Windows.Media.Media3D;
 using System.Windows.Threading;
-
+using System.Collections.Concurrent;
 
 public class TuioDemo : Form, TuioListener
 {
@@ -140,7 +140,10 @@ public class TuioDemo : Form, TuioListener
         client.addTuioListener(this);
 
         client.connect();
+        // Start the YOLO thread
         ConnectToServer();
+
+        StartYoloThread();
     }
     private void ConnectToServer()
     {
@@ -928,7 +931,6 @@ public class TuioDemo : Form, TuioListener
         {
             case 1:
                 SelectedMenuFlag = 0;
-                //CountMenuItems = 0;
                 break;
             case 2:
                 SelectedMenuFlag = 0;
@@ -1029,6 +1031,7 @@ public class TuioDemo : Form, TuioListener
             //textRect = new RectangleF(boxX + 10, boxY + 100, boxWidth - 20, boxHeight - 20);
             //g.DrawString("welcome akool", titleFont, textBrush, textRect, format);
             mainmenuflag = checkmainmenu();
+            ProcessYoloCommands();
             if (mainmenuflag == 2)
             {
                 this.Controls.Remove(mainMenuButton);
@@ -1037,6 +1040,7 @@ public class TuioDemo : Form, TuioListener
         }
         else if (mainmenuflag == 2)
         {
+            ProcessYoloCommands();
             g.DrawImage(backgroundImage2, new Rectangle(0, 0, width, height));
             g.DrawImage(adminImage, new Rectangle(10, 10, 100, 100));
             if (cursorList.Count > 0)
@@ -1261,7 +1265,81 @@ public class TuioDemo : Form, TuioListener
         await Task.Delay(3000); // 3-second delay
         isDelayActive = false;
     }
+    private Thread yoloThread;
+    private bool stopYoloThread = false;
+    private ConcurrentQueue<string> yoloCommands = new ConcurrentQueue<string>();
 
+    private void StartYoloThread()
+    {
+        yoloThread = new Thread(() =>
+        {
+            TcpListener listener = null;
+
+            try
+            {
+                // Start listening on port 5000
+                listener = new TcpListener(System.Net.IPAddress.Parse("127.0.0.1"), 5000);
+                listener.Start();
+                Console.WriteLine("Server started. Waiting for YOLO client to connect...");
+
+                while (!stopYoloThread)
+                {
+                    // Accept a client connection
+                    using (TcpClient client = listener.AcceptTcpClient())
+                    {
+                        Console.WriteLine("YOLO client connected.");
+                        using (NetworkStream stream = client.GetStream())
+                        using (StreamReader reader = new StreamReader(stream))
+                        {
+                            while (!stopYoloThread)
+                            {
+                                try
+                                {
+                                    // Read commands sent by YOLO client
+                                    string command = reader.ReadLine();
+                                    if (!string.IsNullOrEmpty(command))
+                                    {
+                                        Console.WriteLine($"Received: {command}");
+                                        yoloCommands.Enqueue(command);
+                                    }
+                                }
+                                catch (IOException ioEx)
+                                {
+                                    Console.WriteLine($"Connection error: {ioEx.Message}");
+                                    break; // Break if client disconnects
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Server error: {ex.Message}");
+            }
+            finally
+            {
+                listener?.Stop();
+                Console.WriteLine("Server stopped.");
+            }
+        });
+
+        yoloThread.Start();
+    }
+
+    private void ProcessYoloCommands()
+    {
+        while (yoloCommands.TryDequeue(out string command))
+        {
+            MessageBox.Show(command);
+        }
+    }
+
+    private void StopYoloThread()
+    {
+        stopYoloThread = true;
+        yoloThread.Join();
+    }
     public bool AreObjectsIntersecting(TuioObject obj1, TuioObject obj2)
     {
         if (isDelayActive) return false;

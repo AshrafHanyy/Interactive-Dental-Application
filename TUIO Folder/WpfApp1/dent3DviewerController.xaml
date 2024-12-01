@@ -4,9 +4,17 @@
         xmlns:helix="http://helix-toolkit.org/wpf"
         Height="450" Width="800">
     <Grid>
-        <!-- HelixViewport3D control with the name "viewport" -->
-        <helix:HelixViewport3D x:Name="viewport">
-            <!-- Add default lighting for the 3D model -->
+        <!-- Define a split grid with two equal columns -->
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <!-- Left column for the 3D model -->
+            <ColumnDefinition Width="*" />
+            <!-- Right column for the 2D image -->
+        </Grid.ColumnDefinitions>
+
+        <!-- 3D Model Viewport -->
+        <helix:HelixViewport3D x:Name="viewport" Grid.Column="0">
+            <!-- Default lighting for the 3D model -->
             <helix:DefaultLights />
 
             <!-- ModelVisual3D with rotation transform -->
@@ -20,5 +28,10 @@
                 </ModelVisual3D.Transform>
             </ModelVisual3D>
         </helix:HelixViewport3D>
+
+        <!-- 2D Image Viewer -->
+        <Border Grid.Column="1" BorderBrush="Black" BorderThickness="2" Margin="5">
+            <Image x:Name="imageViewer" Stretch="Uniform" />
+        </Border>
     </Grid>
 </UserControl>
