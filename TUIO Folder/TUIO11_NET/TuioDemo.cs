@@ -928,7 +928,6 @@ public class TuioDemo : Form, TuioListener
         {
             case 1:
                 SelectedMenuFlag = 0;
-                //CountMenuItems = 0;
                 break;
             case 2:
                 SelectedMenuFlag = 0;
