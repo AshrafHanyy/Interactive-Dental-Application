@@ -44,7 +44,7 @@ def load_templates_from_csv(csv_file_path):
     return loaded_templates
 
 # Initialize recognizer and load templates
-csv_file_path = 'hand_gesture_templates3.csv'
+csv_file_path = r"C:\Users\Administrator\source\repos\Interactive-Dental-Application\hand_gesture_templates3.csv"
 loaded_templates = load_templates_from_csv(csv_file_path)
 recognizer = Recognizer(loaded_templates)
 
@@ -78,7 +78,7 @@ def recognize_from_camera(conn):
     accumulated_points = []  
     frame_count = 0
     
-    with mp_hands.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.5) as hands:
+    with mp_hands.Hands(min_detection_confidence=0.7, min_tracking_confidence=0.7) as hands:
         while cap.isOpened():
             ret, frame = cap.read()
             if not ret:
