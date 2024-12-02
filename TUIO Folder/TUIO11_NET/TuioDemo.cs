@@ -24,7 +24,7 @@ using System.ComponentModel;
 using System.Collections.Generic;
 using System.Collections;
 using System.Threading.Tasks;
-
+using System.Media;
 using System.Threading;
 using TUIO;
 using System.IO;
@@ -366,7 +366,7 @@ public class TuioDemo : Form, TuioListener
             double anglePerItem = 360.0 / CountMenuItems;
             // Calculate which menu item should be selected
             int newMenuIndex = (int)Math.Floor(angleDegrees / anglePerItem) % CountMenuItems;
-
+            SoundPlayer player = new SoundPlayer("menusound_swipe.mp3"); // Ensure the file is .wav
             // Update the menu selection only if the new index is different from the current one
             if (newMenuIndex != MenuSelectedIndex)
             {
@@ -383,7 +383,7 @@ public class TuioDemo : Form, TuioListener
                 if (rotationDifference > rotationThreshold)
                 {
                     // Play sound effect
-                    PlaySoundEffect("menusound_swipe.mp3");
+                    player.Play();
                 }
                 // Update the selected menu index
                 MenuSelectedIndex = newMenuIndex;
