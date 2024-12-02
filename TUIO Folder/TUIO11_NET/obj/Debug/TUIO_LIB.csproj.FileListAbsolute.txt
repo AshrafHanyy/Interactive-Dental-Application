@@ -19,9 +19,3 @@ C:\Users\MSI SWORD\Source\Repos\Interactive-Dental-Application\TUIO Folder\TUIO1
 C:\Users\MSI SWORD\Source\Repos\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\obj\Debug\libTUIO.dll
 C:\Users\MSI SWORD\Source\Repos\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\obj\Debug\libTUIO.pdb
 >>>>>>> 49ed941e3a8a07d7311462fc1b4b9c47f4786a97
-D:\First semester\HCI\CLONE\TUIO Folder\TUIO11_NET\bin\Debug\libTUIO.dll
-D:\First semester\HCI\CLONE\TUIO Folder\TUIO11_NET\bin\Debug\libTUIO.pdb
-D:\First semester\HCI\CLONE\TUIO Folder\TUIO11_NET\obj\Debug\TUIO_LIB.csproj.AssemblyReference.cache
-D:\First semester\HCI\CLONE\TUIO Folder\TUIO11_NET\obj\Debug\TUIO_LIB.csproj.CoreCompileInputs.cache
-D:\First semester\HCI\CLONE\TUIO Folder\TUIO11_NET\obj\Debug\libTUIO.dll
-D:\First semester\HCI\CLONE\TUIO Folder\TUIO11_NET\obj\Debug\libTUIO.pdb
