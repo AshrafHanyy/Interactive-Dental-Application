@@ -101,3 +101,4 @@ D:\First semester\HCI\CLONE\TUIO Folder\TUIO11_NET\obj\Debug\TUIO_DEMO.csproj.Co
 D:\First semester\HCI\CLONE\TUIO Folder\TUIO11_NET\obj\Debug\TUIO_DEMO.csproj.Up2Date
 D:\First semester\HCI\CLONE\TUIO Folder\TUIO11_NET\obj\Debug\TuioDemo.exe
 D:\First semester\HCI\CLONE\TUIO Folder\TUIO11_NET\obj\Debug\TuioDemo.pdb
+C:\Users\ashra\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\obj\Debug\mohsen.Form2.resources
