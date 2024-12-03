@@ -1,6 +1,10 @@
 {
   "Version": 1,
+<<<<<<< HEAD
+  "WorkspaceRootPath": "C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application\\",
+=======
   "WorkspaceRootPath": "C:\\Users\\MSI SWORD\\source\\repos\\Interactive-Dental-Application\\",
+>>>>>>> 49ed941e3a8a07d7311462fc1b4b9c47f4786a97
   "Documents": [],
   "DocumentGroupContainers": [
     {
@@ -13,6 +17,9 @@
           "Children": [
             {
               "$type": "Bookmark",
+<<<<<<< HEAD
+              "Name": "ST:128:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+=======
               "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
             },
             {
@@ -48,6 +55,7 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{e1b7d1f8-9b3c-49b1-8f4f-bfc63a88835d}"
+>>>>>>> 49ed941e3a8a07d7311462fc1b4b9c47f4786a97
             }
           ]
         }

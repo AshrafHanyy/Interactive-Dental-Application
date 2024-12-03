@@ -45,6 +45,59 @@ using static System.Windows.Forms.DataFormats;
 using mohsen;
 
 public class TuioDemo : Form, TuioListener
+using System.Media;
+
+public class TuioDemo : Form, TuioListener
+{
+    private TcpClient serverClient;
+    private NetworkStream serverStream;
+    private string serverHost = "127.0.0.1";
+    private int serverPort = 65432;
+
+
+    private TuioClient client;
+    private Dictionary<long, TuioObject> objectList;
+    private Dictionary<long, TuioCursor> cursorList;
+    private Dictionary<long, TuioBlob> blobList;
+    private AxisAngleRotation3D modelRotationAngle;
+    private RotateTransform3D modelRotation;
+    private bool isDelayActive = false;
+
+    public static int width, height, selectedIndex = -1;
+    private int window_width = Screen.PrimaryScreen.Bounds.Width;
+    private int window_height = Screen.PrimaryScreen.Bounds.Height;
+    private int window_left = 0;
+    private int window_top = 0;
+    private int screen_width = Screen.PrimaryScreen.Bounds.Width;
+    private int screen_height = Screen.PrimaryScreen.Bounds.Height;
+
+
+    private bool fullscreen;
+    private bool verbose;
+    private bool isAdmin = false;
+
+    private Image adminImage = Image.FromFile(@"admin.png");
+    private Image backgroundImage = Image.FromFile(@"BG_3.jpg");
+    private Image backgroundImage2 = Image.FromFile(@"bg.jpg");
+    Font font = new Font("Times New Roman", 30.0f);
+    SolidBrush fntBrush = new SolidBrush(Color.Black);
+    SolidBrush bgrBrush = new SolidBrush(Color.FromArgb(255, 255, 64));
+    SolidBrush curBrush = new SolidBrush(Color.FromArgb(192, 0, 192));
+    SolidBrush SelectedItemBrush = new SolidBrush(Color.SeaGreen);
+    SolidBrush MenuItemBrush = new SolidBrush(Color.White);
+    SolidBrush objBrush = new SolidBrush(Color.Silver);
+    SolidBrush blbBrush = new SolidBrush(Color.FromArgb(64, 64, 64));
+    Pen curPen = new Pen(new SolidBrush(Color.Blue), 1);
+    string message = string.Empty;
+    private bool hand_gesture = false;
+
+    List<Point> mymenupoints = new List<Point>();
+
+
+    //elementHost1.Child = viewerControl;
+
+    Bitmap off;
+    public class CActor
     {
         private TcpClient serverClient;
         private NetworkStream serverStream;
@@ -149,6 +202,147 @@ public class TuioDemo : Form, TuioListener
             ConnectToServer();
 
             StartYoloThread();
+        StartYoloThread();
+    }
+    private void ConnectToServer()
+    {
+        try
+        {
+            serverClient = new TcpClient(serverHost, serverPort);
+            serverStream = serverClient.GetStream();
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+
+            StringBuilder completeMessage = new StringBuilder();
+            while ((bytesRead = serverStream.Read(buffer, 0, buffer.Length)) != 0)  // Using Read instead of ReadAsync
+            {
+                completeMessage.Append(Encoding.ASCII.GetString(buffer, 0, bytesRead));
+            }
+
+            // Update UI with received data
+            //if (InvokeRequired)
+            //{
+            //    Invoke(new MethodInvoker(delegate {
+            //        MessageBox.Show("Received data:\n" + completeMessage.ToString());
+            //    }));
+            //}
+            //else
+            //{
+            //    MessageBox.Show("Received data:\n" + completeMessage.ToString());
+            //}
+            String type = completeMessage.ToString();
+            if (type.StartsWith("admin"))
+            {
+                // Extract the device name from the completeMessage
+                string deviceName = type.Substring(6).Trim('\'');
+                message = $"Welcome, Admin: {deviceName}";
+                isAdmin = true;
+            }
+            else if (type.StartsWith("login"))
+            {
+                // Extract the device name from the completeMessage
+                string deviceName = type.Substring(6).Trim('\'');
+                message = $"welcome back, {deviceName}! You are logged in.";
+            }
+            else if (type.StartsWith("signup"))
+            {
+                // Extract the device name from the completeMessage
+                string deviceName = type.Substring(7).Trim('\'');
+                message = $"Hello, {deviceName}!";
+            }
+            else
+            {
+                message = "Unrecognized user type.";
+            }
+        }
+        catch (SocketException e)
+        {
+            //MessageBox.Show("SocketException: " + e.Message);
+        }
+    }
+
+
+    private void Initialize3DViewer(string file_path, string image_path)
+    {
+        Thread viewerThread = new Thread(() =>
+        {
+            // Initialize the viewer control and assign it to the class-level variable
+            viewerControl = new WpfApp1.dent3DviewerController(file_path, image_path);
+
+            var viewerWindow = new System.Windows.Window
+            {
+                Title = "3D Viewer",
+                Content = viewerControl,
+                WindowState = System.Windows.WindowState.Maximized
+            };
+
+            // Show the window and start the dispatcher loop for this thread
+            viewerWindow.Show();
+            Dispatcher.Run();
+        });
+
+        viewerThread.SetApartmentState(ApartmentState.STA); // Required for WPF
+        viewerThread.IsBackground = true;
+        viewerThread.Start();
+    }
+
+
+
+    private void TuioDemo_Load(object sender, EventArgs e)
+    {
+        /*        string audiofilepath = ("01 - Track 01.mp3");
+                PlayBackgroundMusic(audiofilepath);*/
+        off = new Bitmap(this.ClientSize.Width, this.ClientSize.Height);
+        Task.Run(async () => await ReceivePredictionsAsync());
+        this.InitializeComponent();
+        //Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Seven-eighth crown preparation.stl", @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Seven-eighth Crown.png");
+    }
+
+    private void Form_KeyDown(object sender, System.Windows.Forms.KeyEventArgs e)
+    {
+
+        if (e.KeyData == Keys.F1)
+        {
+            if (fullscreen == false)
+            {
+
+                width = screen_width;
+                height = screen_height;
+
+                window_left = this.Left;
+                window_top = this.Top;
+
+                this.FormBorderStyle = FormBorderStyle.None;
+                this.Left = 0;
+                this.Top = 0;
+                this.Width = screen_width;
+                this.Height = screen_height;
+
+                fullscreen = true;
+            }
+            else
+            {
+
+                width = window_width;
+                height = window_height;
+
+                this.FormBorderStyle = FormBorderStyle.Sizable;
+                this.Left = window_left;
+                this.Top = window_top;
+                this.Width = window_width;
+                this.Height = window_height;
+
+                fullscreen = false;
+            }
+        }
+        else if (e.KeyData == Keys.Escape)
+        {
+            this.Close();
+
+        }
+        else if (e.KeyData == Keys.V)
+        {
+            verbose = !verbose;
         }
 
         private void TuioDemo_Paint(object sender, PaintEventArgs e)
@@ -157,6 +351,250 @@ public class TuioDemo : Form, TuioListener
         }
 
         private void ConnectToServer()
+    public async void PlaySoundEffect(string audioFilePath)
+    {
+        // Introduce a delay of 1 second before playing the sound
+        await Task.Delay(0);
+
+        // Initialize sound effect for playback
+        soundEffect = new AudioFileReader(audioFilePath);
+        soundEffectOutput = new WaveOutEvent
+        {
+            Volume = 0.8f // Set volume if needed
+        };
+        soundEffectOutput.Init(soundEffect);
+
+        // Play the sound
+        soundEffectOutput.Play();
+
+        // Wait for the sound to finish playing
+        while (soundEffectOutput.PlaybackState == PlaybackState.Playing)
+        {
+            await System.Threading.Tasks.Task.Delay(10); // Check playback state every 100 milliseconds
+        }
+    }
+
+    public int menuMarker = 15;
+    private bool hasPlayedSound = false;
+    // Declare a threshold for rotation change
+    private double rotationThreshold = 10f; // Example: 15-degree change
+    private double previousRotationAngle = 0f;
+
+    private bool markerVisible = false; // Track visibility state
+
+    public void checkrotation(List<CActor> objs, Graphics g, TuioObject o)
+    {
+        if (o.SymbolID == menuMarker) // Assuming marker with SymbolID controls the menu
+        {
+            bool isNewMarker = !markerVisible; // Check if this is a new marker appearance
+            markerVisible = true; // Update marker visibility
+
+            // Convert the angle to degrees
+            double angleDegrees = o.Angle * 180.0 / Math.PI;
+            // Normalize the angle to be within 0 to 360 degrees
+            if (angleDegrees < 0) angleDegrees += 360;
+            // Reverse the angle direction for correct item selection
+            angleDegrees = 360 - angleDegrees;
+
+            // Calculate the rotation difference
+            double rotationDifference = Math.Abs(angleDegrees - previousRotationAngle);
+
+            // Introduce a small threshold to avoid minor rotations
+            const double rotationThreshold = 5.0; // Adjust this value as needed
+
+            // Update only if the rotation difference is greater than the threshold
+
+            previousRotationAngle = angleDegrees;
+
+            // Divide the full circle (360 degrees) into equal sections for each menu item
+            double anglePerItem = 360.0 / CountMenuItems;
+            // Calculate which menu item should be selected
+            int newMenuIndex = (int)Math.Floor(angleDegrees / anglePerItem) % CountMenuItems;
+            SoundPlayer player = new SoundPlayer("menusound_swipe.wav");
+            // Update the menu selection only if the new index is different from the current one
+            if (newMenuIndex != MenuSelectedIndex)
+            {
+                // Deselect previous menu item
+                if (MenuSelectedIndex >= 0 && MenuSelectedIndex < CountMenuItems)
+                {
+                    MenuObjs[MenuSelectedIndex].color = 0; // Deselect previous menu item
+                }
+                // Select new menu item
+                if (newMenuIndex >= 0 && newMenuIndex < CountMenuItems)
+                {
+                    MenuObjs[newMenuIndex].color = 1; // Select new menu item
+                }
+                if (rotationDifference > rotationThreshold)
+                {
+                    // Play sound effect
+                    player.Play();
+                }
+                if (rotationDifference < -rotationThreshold)
+                {
+                    // Play sound effect
+                    player.Play();
+                }
+                // Update the selected menu index
+                MenuSelectedIndex = newMenuIndex;
+
+                // Trigger a repaint with the updated menu
+                Invalidate();
+            }
+
+        }
+        else
+        {
+            // Marker is no longer visible; you can set it to false to track disappearance
+            markerVisible = false;
+        }
+    }
+
+    // Call this method when detecting the marker's disappearance
+    public void HandleMarkerDisappearance(TuioObject o)
+    {
+        if (o.SymbolID == menuMarker)
+        {
+            markerVisible = false; // Reset visibility tracking
+        }
+    }
+
+    public void updateTuioObject(TuioObject o)
+    {
+
+        // Existing verbose logging for other object data
+        if (verbose)
+        {
+            //Console.WriteLine("set obj " + o.SymbolID + " (" + o.SessionID + ") " + o.X + " " + o.Y + " " + o.Angle + " " + o.MotionSpeed + " " + o.RotationSpeed + " " + o.MotionAccel + " " + o.RotationAccel);
+        }
+    }
+
+    /* public Graphics drawmenu(List<CActor> menuobjs, Graphics g)
+     {
+         int cornerRadius = 10;
+         for (int i = 0; i < menuobjs.Count; i++)
+         {
+             Rectangle rect = new Rectangle(menuobjs[i].X, menuobjs[i].Y, menuobjs[i].W, menuobjs[i].H);
+             if (menuobjs[i].color == 0)
+             {
+                 DrawRoundedRectangle(g, MenuItemBrush, rect, cornerRadius);
+             }
+             else
+             {
+                 DrawRoundedRectangle(g, SelectedItemBrush, rect, cornerRadius);
+             }
+
+         }
+         return g;
+     }
+ */
+    public void removeTuioObject(TuioObject o)
+    {
+        lock (objectList)
+        {
+            objectList.Remove(o.SessionID);
+        }
+        //if (verbose) //Console.WriteLine("del obj " + o.SymbolID + " (" + o.SessionID + ")");
+    }
+
+    public void addTuioCursor(TuioCursor c)
+    {
+        lock (cursorList)
+        {
+            cursorList.Add(c.SessionID, c);
+        }
+        //if (verbose) Console.WriteLine("add cur " + c.CursorID + " (" + c.SessionID + ") " + c.X + " " + c.Y);
+    }
+
+    public void updateTuioCursor(TuioCursor c)
+    {
+        if (verbose) Console.WriteLine("set cur " + c.CursorID + " (" + c.SessionID + ") " + c.X + " " + c.Y + " " + c.MotionSpeed + " " + c.MotionAccel);
+    }
+
+    public void removeTuioCursor(TuioCursor c)
+    {
+        lock (cursorList)
+        {
+            cursorList.Remove(c.SessionID);
+        }
+        if (verbose) Console.WriteLine("del cur " + c.CursorID + " (" + c.SessionID + ")");
+    }
+
+    public void addTuioBlob(TuioBlob b)
+    {
+        lock (blobList)
+        {
+            blobList.Add(b.SessionID, b);
+        }
+        if (verbose) Console.WriteLine("add blb " + b.BlobID + " (" + b.SessionID + ") " + b.X + " " + b.Y + " " + b.Angle + " " + b.Width + " " + b.Height + " " + b.Area);
+    }
+
+    public void updateTuioBlob(TuioBlob b)
+    {
+
+        if (verbose) Console.WriteLine("set blb " + b.BlobID + " (" + b.SessionID + ") " + b.X + " " + b.Y + " " + b.Angle + " " + b.Width + " " + b.Height + " " + b.Area + " " + b.MotionSpeed + " " + b.RotationSpeed + " " + b.MotionAccel + " " + b.RotationAccel);
+    }
+
+    public void removeTuioBlob(TuioBlob b)
+    {
+        lock (blobList)
+        {
+            blobList.Remove(b.SessionID);
+        }
+        if (verbose) Console.WriteLine("del blb " + b.BlobID + " (" + b.SessionID + ")");
+    }
+    public static List<string> imagePaths = new List<string>();
+    public int SelectedMenuFlag = 0;
+    public int save_selectedMenuFlag = 0;
+    public void refresh(TuioTime frameTime)
+    {
+        Invalidate();
+    }
+    public int MenuIconWidth = 100;
+    public int MenuIconHeight = 150;
+    public int CountMenuItems = 2;
+    public int MenuSelectedIndex = 0; //item selection
+    public int FlagExecuted = 0;
+    List<CActor> MenuObjs = new List<CActor>();
+    public void DrawRoundedRectangle(Graphics g, bool isSelected, Rectangle rect, int radius, int index)
+    {
+        using (GraphicsPath path = CreateRoundedRectanglePath(rect, radius))
+        {
+            g.FillPath(MenuItemBrush, path);
+            // Draw the rounded rectangle background
+            if (isSelected)
+            {
+                using (Pen redPen = new Pen(Color.Red, 5)) // Adjust thickness as needed
+                {
+                    g.DrawPath(redPen, path);
+                }
+            }
+
+            DrawImageIfSelected(g, index, path, rect);
+        }
+    }
+
+    private GraphicsPath CreateRoundedRectanglePath(Rectangle rect, int radius)
+    {
+        GraphicsPath path = new GraphicsPath();
+        float diameter = radius * 2f;
+        SizeF sizeF = new SizeF(diameter, diameter);
+        RectangleF arc = new RectangleF(rect.Location, sizeF);
+
+        path.AddArc(arc, 180, 90);
+        arc.X = rect.Right - diameter;
+        path.AddArc(arc, 270, 90);
+        arc.Y = rect.Bottom - diameter;
+        path.AddArc(arc, 0, 90);
+        arc.X = rect.Left;
+        path.AddArc(arc, 90, 90);
+        path.CloseFigure();
+
+        return path;
+    }
+
+    private void DrawImageIfSelected(Graphics g, int index, GraphicsPath path, Rectangle rect)
+    {
+        if (SelectedMenuFlag != 0 && SelectedMenuFlag != 1 && imagePaths.Count > index)
         {
             try
             {
@@ -217,6 +655,106 @@ public class TuioDemo : Form, TuioListener
         private void Initialize3DViewer(string file_path, string image_path)
         {
             Thread viewerThread = new Thread(() =>
+            destWidth = rect.Width;
+            destHeight = (int)(rect.Width / imageAspectRatio);
+        }
+        else
+        {
+            destHeight = rect.Height;
+            destWidth = (int)(rect.Height * imageAspectRatio);
+        }
+
+        int destX = rect.X + (rect.Width - destWidth) / 2;
+        int destY = rect.Y + (rect.Height - destHeight) / 2;
+
+        return new Rectangle(destX, destY, destWidth, destHeight);
+    }
+
+    public void RefreshMenu()
+    {
+        Invalidate();
+    }
+
+    public List<Point> generatemenu(int n, int ind = -1)
+    {
+        MenuSelectedIndex = (0 > ind) ? n - 1 : ind;
+        List<Point> myIcons = new List<Point>();
+        int centerX = ClientSize.Width / 2;
+        int centerY = ClientSize.Height / 2;
+        int radius = Math.Min(ClientSize.Width, ClientSize.Height) / 4;
+        double angleIncrement = 360.0 / n;
+
+        for (int i = 0; i < n; i++)
+        {
+            double angleInRadians = (angleIncrement * i) * (Math.PI / 180);
+            int x = (int)(centerX + radius * Math.Cos(angleInRadians) - MenuIconWidth / 2);
+            int y = (int)(centerY + radius * Math.Sin(angleInRadians) - MenuIconHeight / 2);
+            myIcons.Add(new Point(x, y));
+        }
+
+        return myIcons;
+    }
+    public List<CActor> CreateMenuObjects(List<Point> points)
+    {
+        int padding = 20;
+        int availableWidth = ClientSize.Width - (padding * 4);
+
+        int maxWidth = ((availableWidth / CountMenuItems) - 400);
+        if (SelectedMenuFlag == 2) // 2 items
+        {
+            maxWidth = (availableWidth / CountMenuItems) - 550;
+            MenuIconHeight = 250;
+        }
+        if (SelectedMenuFlag == 4) // 2 items
+        {
+            maxWidth = (availableWidth / CountMenuItems) - 200;
+            MenuIconHeight = 250;
+        }
+
+        List<CActor> objs = new List<CActor>();
+
+        for (int i = 0; i < points.Count; i++)
+        {
+            CActor obj = new CActor();
+
+            // Adjust width based on the number of items
+
+            obj.W = maxWidth;
+            obj.H = MenuIconHeight;
+
+            // Center the rectangle horizontally with padding on each side
+            obj.X = ClientSize.Width / 2 - (CountMenuItems * maxWidth) / 2 + i * (maxWidth + padding);
+            obj.Y = ClientSize.Height / 2 - MenuIconHeight / 2;
+
+            // Highlight selected menu item
+            obj.color = (i == MenuSelectedIndex) ? 1 : 0;
+            objs.Add(obj);
+        }
+        return objs;
+    }
+
+    public Graphics drawmenu(List<CActor> menuobjs, Graphics g)
+    {
+        FlagExecuted = 0;
+        int cornerRadius = 10;
+        int padding = 10;
+        bool drawTextBelow = true;
+        // Set a base font and adjust only once if needed
+        Font subFont = new Font("Segoe UI", 16, FontStyle.Bold);
+        SolidBrush textBrush = new SolidBrush(Color.Black);
+
+        for (int i = 0; i < menuobjs.Count; i++) // go over each menu item
+        {
+            Rectangle rect = new Rectangle(menuobjs[i].X, menuobjs[i].Y, menuobjs[i].W, menuobjs[i].H);
+
+            // Draw background of menu items
+
+
+            // Define text based on menu item
+            string itemText = "";
+            Console.WriteLine($"For object {i} color is {menuobjs[i].color}");
+            DrawRoundedRectangle(g, (menuobjs[i].color == 0) ? false : true, rect, cornerRadius, i);
+            switch (SelectedMenuFlag)
             {
                 // Initialize the viewer control and assign it to the class-level variable
                 viewerControl = new WpfApp1.dent3DviewerController(file_path, image_path);
@@ -413,6 +951,14 @@ public class TuioDemo : Form, TuioListener
 
         // Call this method when detecting the marker's disappearance
         public void HandleMarkerDisappearance(TuioObject o)
+        return g;
+    }
+
+    private void check_menu()
+    {
+        string pa = @"./Crown Dental APP/2d illustrations/Inlay.png";
+        save_selectedMenuFlag = SelectedMenuFlag;
+        switch (SelectedMenuFlag) // which menu are you're at
         {
             if (o.SymbolID == menuMarker)
             {
@@ -837,9 +1383,55 @@ public class TuioDemo : Form, TuioListener
                     }
                     break;
             }
+                }
+                ActivateDelay();
+                break;
+            case 2:
+                if (FlagExecuted == 0)
+                {
+                    //"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\bin\Debug\Crown Dental APP\2d illustrations\Anterior three quarter crown.png"
+                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Inlay.stl", @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Inlay.png");
+                    FlagExecuted = 1;
+                }
+                break;
+            case 3:
+                if (MenuSelectedIndex == 0 && FlagExecuted == 0)
+                {
+                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\All ceramic crown preparation.stl", @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\All ceramic crown preparation.png");
+                    FlagExecuted = 1;
+                }
+                else if (MenuSelectedIndex == 1 && FlagExecuted == 0)
+                {
+                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Full veneer crown preparation.stl", @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Full veneer crown.png");
+                    FlagExecuted = 1;
+                }
+                break;
+            case 4:
+                if (MenuSelectedIndex == 0 && FlagExecuted == 0)
+                {
+                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Anterior Three quarter crown preparation .stl", @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Anterior three quarter crown.png");
+                    FlagExecuted = 1;
+                }
+                else if (MenuSelectedIndex == 1 && FlagExecuted == 0)
+                {
+                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Pin modified three-quarter crown preparation.stl", @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Pin-Modified three quarter crown.png");
+                    FlagExecuted = 1;
+                }
+                else if (MenuSelectedIndex == 2 && FlagExecuted == 0)
+                {
+                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Seven-eighth crown preparation.stl", @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Seven-eighth Crown.png");
+                    FlagExecuted = 1;
+
+                }
+                break;
         }
 
         private void check_selection()
+    private void check_selection()
+    {
+        Console.WriteLine($"Selected menu flag = {SelectedMenuFlag}");
+        Console.WriteLine($"Menu selected index = {MenuSelectedIndex}");
+        switch (SelectedMenuFlag) // which menu are you're at
         {
             switch (SelectedMenuFlag) // which menu are you're at
             {
@@ -877,6 +1469,40 @@ public class TuioDemo : Form, TuioListener
         private async Task ReceivePredictionsAsync()
         {
             try
+                break;
+            case 1:
+                CountMenuItems = 2;
+                SelectedMenuFlag = 0;
+                imagePaths = new List<string>{
+                                                          @"./Crown Dental APP/2d illustrations/All ceramic crown preparation.png",
+                                                        @"./Crown Dental APP/2d illustrations/Full veneer crown.png",
+                                                        };
+                ActivateDelay();
+                break;
+            case 2:
+                CountMenuItems = 2;
+                SelectedMenuFlag = 0;
+                ActivateDelay();
+                break;
+            case 3:
+                CountMenuItems = 2;
+                SelectedMenuFlag = 1;
+                ActivateDelay();
+                break;
+            case 4:
+                CountMenuItems = 2;
+                SelectedMenuFlag = 1;
+                ActivateDelay();
+                break;
+        }
+    }
+    private bool flagFirst = false;
+    private async Task ReceivePredictionsAsync()
+    {
+        try
+        {
+            //hand_gesture flag need to be set to 1 when opening python server
+            using (TcpClient client = new TcpClient("localhost", 65434))
             {
                 using (TcpClient client = new TcpClient("localhost", 65434))
                 {
@@ -924,11 +1550,150 @@ public class TuioDemo : Form, TuioListener
                             {
                                 check_selection();
                             }
+                        // Convert received bytes to string
+                        string responseData = Encoding.ASCII.GetString(dataToReceive, 0, bytesRead);
+                        Console.WriteLine("Received Prediction: " + responseData);
+                        if (!flagFirst && hand_gesture)
+                        {
+                            SelectedMenuFlag = 0;
+                            MenuSelectedIndex = 0;
+                            mainmenuflag = 2;
+                            flagFirst = true;
+
+                        }
+                        if (responseData == "Swipe right" && FlagExecuted == 1)
+                        {
+                            viewerControl.ChangeBasedOnCommand("Swipe right", 10);
+                        }
+                        else if (responseData == "Swipe right" && FlagExecuted == 0)
+                        {
+                            Console.WriteLine($"before menu selected index is {MenuSelectedIndex} and Count items is {CountMenuItems} right");
+                            if (MenuSelectedIndex < CountMenuItems - 1)
+                            {
+                                MenuSelectedIndex++;
+                            }
+                            else
+                            {
+                                MenuSelectedIndex = 0;
+                            }
+                            Console.WriteLine($"after menu selected index is {MenuSelectedIndex} Count items is {CountMenuItems} right");
+                        }
+                        else if (responseData == "Swipe left" && FlagExecuted == 1)
+                        {
+                            viewerControl.ChangeBasedOnCommand("Swipe left", 10);
+                        }
+                        else if (responseData == "Swipe left" && FlagExecuted == 0)
+                        {
+                            Console.WriteLine($"before menu selected index is {MenuSelectedIndex} Count items is {CountMenuItems} left");
+                            if (MenuSelectedIndex > 0)
+                            {
+                                MenuSelectedIndex--;
+                            }
+                            else
+                            {
+                                MenuSelectedIndex = CountMenuItems - 1;
+                            }
+                            Console.WriteLine($"after menu selected index is {MenuSelectedIndex} Count items is {CountMenuItems} left");
+                        }
+                        else if (responseData == "Zoom In" && FlagExecuted == 1)
+                        {
+                            viewerControl.ChangeBasedOnCommand("Zoom in");
+                        }
+                        else if (responseData == "Zoom out" && FlagExecuted == 1)
+                        {
+                            viewerControl.ChangeBasedOnCommand("Zoom out");
+                        }
+                        else if (responseData == "Select" && FlagExecuted == 0)
+                        {
+                            check_menu();
+                        }
+                        else if (responseData == "Back" && FlagExecuted == 0)
+                        {
+                            back();
+                        }
+                        using (Graphics g = this.CreateGraphics())
+                        {
+                            DrawDubb(g);
                         }
                     }
                 }
             }
             catch (Exception ex)
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error: " + ex.Message);
+        }
+    }
+    public int mainmenuflag = 1;
+
+    public void back()
+    {
+        switch (SelectedMenuFlag)
+        {
+            case 1:
+                SelectedMenuFlag = 0;
+                break;
+            case 2:
+                SelectedMenuFlag = 0;
+                CountMenuItems = 2;
+                break;
+            case 3:
+                SelectedMenuFlag = 1;
+                CountMenuItems = 2;
+                break;
+            case 4:
+                SelectedMenuFlag = 1;
+                CountMenuItems = 2;
+                break;
+
+        }
+    }
+
+    protected override void OnPaintBackground(PaintEventArgs pevent)
+    {
+        Graphics g = pevent.Graphics;
+        //g.FillRectangle(bgrBrush, new Rectangle(0, 0, width, height));
+        g.Clear(Color.WhiteSmoke);
+        ////////////////////////////////////////////////////
+        ///////////////////////
+        // Define a rectangle for the title text
+        Font titleFont = new Font("Segoe UI", 35, FontStyle.Bold);
+        SolidBrush textBrush = new SolidBrush(Color.Black);
+
+        // Define the dimensions and position for the semi-transparent rounded rectangle
+        int boxWidth = 800; // Adjust width as needed
+        int boxHeight = 300; // Adjust height as needed
+        int boxX = (this.window_width / 2) - (boxWidth / 2);
+        int boxY = this.ClientRectangle.Top + 20;
+
+        // Create a semi-transparent white brush
+        SolidBrush boxBrush = new SolidBrush(Color.FromArgb(150, Color.White));
+
+        // Draw the rounded rectangle
+        GraphicsPath roundedRectPath = new GraphicsPath();
+        int cornerRadius = 20;
+        roundedRectPath.AddArc(boxX, boxY, cornerRadius, cornerRadius, 180, 90);
+        roundedRectPath.AddArc(boxX + boxWidth - cornerRadius, boxY, cornerRadius, cornerRadius, 270, 90);
+        roundedRectPath.AddArc(boxX + boxWidth - cornerRadius, boxY + boxHeight - cornerRadius, cornerRadius, cornerRadius, 0, 90);
+        roundedRectPath.AddArc(boxX, boxY + boxHeight - cornerRadius, cornerRadius, cornerRadius, 90, 90);
+        roundedRectPath.CloseFigure();
+        ///////////////////////
+        ////////////////////////////////////////////////////
+
+        SolidBrush brush = new SolidBrush(Color.White);
+        System.Drawing.Pen mypen = new System.Drawing.Pen(Color.Black, 5);
+        Font f = new Font("Calibri", 35, FontStyle.Bold);
+        if (mainmenuflag == 1)
+        {
+            // g.FillRectangle(bgrBrush, new Rectangle(0, 0, width, height));
+
+            g.DrawImage(backgroundImage, new Rectangle(0, 0, width, height));
+            g.FillPath(boxBrush, roundedRectPath);
+            RectangleF textRect = new RectangleF(boxX + 10, boxY - 50, boxWidth - 20, boxHeight - 20);
+
+            // Create a StringFormat for centered alignment
+            StringFormat format = new StringFormat
             {
                 Console.WriteLine("Error: " + ex.Message);
             }
@@ -936,6 +1701,7 @@ public class TuioDemo : Form, TuioListener
         public int mainmenuflag = 1;
 
         protected override void OnPaintBackground(PaintEventArgs pevent)
+        else if (mainmenuflag == 2 && !hand_gesture)
         {
             Graphics g = pevent.Graphics;
             //g.FillRectangle(bgrBrush, new Rectangle(0, 0, width, height));
@@ -1153,6 +1919,54 @@ public class TuioDemo : Form, TuioListener
                             return 2;
                         }
 
+                            mymenupoints = generatemenu(CountMenuItems);
+                            MenuObjs = CreateMenuObjects(mymenupoints);
+                            checkrotation(MenuObjs, g, tobj);
+                            g = drawmenu(MenuObjs, g);
+                        }
+                        foreach (TuioObject obj1 in objectList.Values)
+                        {
+                            foreach (TuioObject obj2 in objectList.Values)
+                            {
+                                if (obj1.SymbolID == 15 && obj2.SymbolID == 12 && AreObjectsIntersecting(obj1, obj2))
+                                {
+                                    check_menu();
+                                }
+                                if (FlagExecuted == 1 && (obj1.SymbolID == 5 || obj2.SymbolID == 5))
+                                {
+                                    viewerControl.ChangeBasedOnCommand("Zoom out");
+                                }
+                                else if (FlagExecuted == 1 && (obj1.SymbolID == 8 || obj2.SymbolID == 8))
+                                {
+                                    viewerControl.ChangeBasedOnCommand("Zoom in");
+                                }
+                                else if (FlagExecuted == 1 && (obj1.SymbolID == 3 || obj2.SymbolID == 3))
+                                {
+                                    viewerControl.ChangeBasedOnCommand("Swipe right");
+
+                                }
+                                else if (FlagExecuted == 1 && (obj1.SymbolID == 11 || obj2.SymbolID == 11))
+                                {
+                                    viewerControl.ChangeBasedOnCommand("Swipe left");
+                                }
+                                else if (FlagExecuted == 1 && (obj1.SymbolID == 1 || obj2.SymbolID == 1))
+                                {
+                                    viewerControl.ChangeBasedOnCommand("Swipe up");
+                                }
+                                else if (FlagExecuted == 1 && (obj1.SymbolID == 2 || obj2.SymbolID == 2))
+                                {
+                                    viewerControl.ChangeBasedOnCommand("Swipe down");
+                                }
+                                if (obj1.SymbolID == 15 && obj2.SymbolID == 11 && AreObjectsIntersecting(obj1, obj2))
+                                {
+                                    check_selection();
+                                }
+                                if (obj1.SymbolID == 6 && obj2.SymbolID == 6)
+                                {
+                                    back();
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -1161,10 +1975,55 @@ public class TuioDemo : Form, TuioListener
         }
 
         void DrawDubb(Graphics g)
+        if (hand_gesture)
+        {
+            //Console.WriteLine($"selected index {MenuSelectedIndex}");
+            g.DrawImage(backgroundImage2, new Rectangle(0, 0, width, height));
+            g.DrawImage(adminImage, new Rectangle(10, 10, 100, 100));
+            mymenupoints = generatemenu(CountMenuItems, MenuSelectedIndex);
+            MenuObjs = CreateMenuObjects(mymenupoints);
+            g = drawmenu(MenuObjs, g);
+        }
+    }
+
+    public int checkmainmenu()
+    {
+        if (objectList.Count > 0)
         {
 
             Graphics g2 = Graphics.FromImage(off);
             DrawScene(g2);
+                    /*  g.TranslateTransform(ox, oy);
+                        g.RotateTransform((float)(tobj.Angle / Math.PI * 180.0f));
+                        g.TranslateTransform(-ox, -oy);
+
+                        g.FillRectangle(objBrush, new Rectangle(ox - size / 2, oy - size / 2, size, size));
+
+                        g.TranslateTransform(ox, oy);
+                        g.RotateTransform(-1 * (float)(tobj.Angle / Math.PI * 180.0f));
+                        g.TranslateTransform(-ox, -oy);
+
+                        g.DrawString(tobj.SymbolID + "", font, fntBrush, new PointF(ox - 10, oy - 10));*/
+                    string objectImagePath = "";
+                    if (tobj.SymbolID == 12)
+                    {
+                        return 2;
+                    }
+                }
+            }
+        }
+        return 1;
+
+    }
+
+    void DrawDubb(Graphics g)
+    {
+        using (Graphics g2 = Graphics.FromImage(off))
+        {
+            // Draw on the off-screen buffer (bitmap)
+            OnPaintBackground(new PaintEventArgs(g2, new Rectangle(0, 0, off.Width, off.Height)));
+
+            // Draw the off-screen buffer to the on-screen Graphics object
             g.DrawImage(off, 0, 0);
 
 
