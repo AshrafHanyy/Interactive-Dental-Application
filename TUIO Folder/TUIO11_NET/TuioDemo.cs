@@ -85,6 +85,7 @@ public class TuioDemo : Form, TuioListener
     SolidBrush blbBrush = new SolidBrush(Color.FromArgb(64, 64, 64));
     Pen curPen = new Pen(new SolidBrush(Color.Blue), 1);
     string message = string.Empty;
+    private bool hand_gesture = false;
 
     List<Point> mymenupoints = new List<Point>();
 
@@ -237,7 +238,7 @@ public class TuioDemo : Form, TuioListener
         off = new Bitmap(this.ClientSize.Width, this.ClientSize.Height);
         Task.Run(async () => await ReceivePredictionsAsync());
         this.InitializeComponent();
-        //Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application2\TUIO Folder\WpfApp1\obj\Debug\4 UpperJawScan.stl");
+        //Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Seven-eighth crown preparation.stl", @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Seven-eighth Crown.png");
     }
 
     private void Form_KeyDown(object sender, System.Windows.Forms.KeyEventArgs e)
@@ -599,9 +600,9 @@ public class TuioDemo : Form, TuioListener
         Invalidate();
     }
 
-    public List<Point> generatemenu(int n)
+    public List<Point> generatemenu(int n, int ind = -1)
     {
-        MenuSelectedIndex = n - 1;
+        MenuSelectedIndex = (0 > ind) ? n - 1 : ind;
         List<Point> myIcons = new List<Point>();
         int centerX = ClientSize.Width / 2;
         int centerY = ClientSize.Height / 2;
@@ -659,6 +660,7 @@ public class TuioDemo : Form, TuioListener
 
     public Graphics drawmenu(List<CActor> menuobjs, Graphics g)
     {
+        FlagExecuted = 0;
         int cornerRadius = 10;
         int padding = 10;
         bool drawTextBelow = true;
@@ -675,6 +677,7 @@ public class TuioDemo : Form, TuioListener
 
             // Define text based on menu item
             string itemText = "";
+            Console.WriteLine($"For object {i} color is {menuobjs[i].color}");
             DrawRoundedRectangle(g, (menuobjs[i].color == 0) ? false : true, rect, cornerRadius, i);
             switch (SelectedMenuFlag)
             {
@@ -800,37 +803,38 @@ public class TuioDemo : Form, TuioListener
                 if (FlagExecuted == 0)
                 {
                     //"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\bin\Debug\Crown Dental APP\2d illustrations\Anterior three quarter crown.png"
-                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Inlay.stl", pa);
+                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Inlay.stl", @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Inlay.png");
                     FlagExecuted = 1;
                 }
                 break;
             case 3:
                 if (MenuSelectedIndex == 0 && FlagExecuted == 0)
                 {
-                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\All ceramic crown preparation.stl", pa);
+                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\All ceramic crown preparation.stl", @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\All ceramic crown preparation.png");
                     FlagExecuted = 1;
                 }
                 else if (MenuSelectedIndex == 1 && FlagExecuted == 0)
                 {
-                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Full veneer crown preparation.stl", pa);
+                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Full veneer crown preparation.stl", @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Full veneer crown.png");
                     FlagExecuted = 1;
                 }
                 break;
             case 4:
                 if (MenuSelectedIndex == 0 && FlagExecuted == 0)
                 {
-                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Anterior Three quarter crown preparation .stl", pa);
+                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Anterior Three quarter crown preparation .stl", @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Anterior three quarter crown.png");
                     FlagExecuted = 1;
                 }
                 else if (MenuSelectedIndex == 1 && FlagExecuted == 0)
                 {
-                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Pin modified three-quarter crown preparation.stl", pa);
+                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Pin modified three-quarter crown preparation.stl", @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Pin-Modified three quarter crown.png");
                     FlagExecuted = 1;
                 }
                 else if (MenuSelectedIndex == 2 && FlagExecuted == 0)
                 {
-                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Seven-eighth crown preparation.stl", pa);
+                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Seven-eighth crown preparation.stl", @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Seven-eighth Crown.png");
                     FlagExecuted = 1;
+
                 }
                 break;
         }
@@ -838,6 +842,8 @@ public class TuioDemo : Form, TuioListener
 
     private void check_selection()
     {
+        Console.WriteLine($"Selected menu flag = {SelectedMenuFlag}");
+        Console.WriteLine($"Menu selected index = {MenuSelectedIndex}");
         switch (SelectedMenuFlag) // which menu are you're at
         {
             case 0://if you're at the first menu 
@@ -869,11 +875,12 @@ public class TuioDemo : Form, TuioListener
                 break;
         }
     }
-
+    private bool flagFirst = false;
     private async Task ReceivePredictionsAsync()
     {
         try
         {
+            //hand_gesture flag need to be set to 1 when opening python server
             using (TcpClient client = new TcpClient("localhost", 65434))
             {
                 client.ReceiveTimeout = 2000;
@@ -889,27 +896,50 @@ public class TuioDemo : Form, TuioListener
                         // Convert received bytes to string
                         string responseData = Encoding.ASCII.GetString(dataToReceive, 0, bytesRead);
                         Console.WriteLine("Received Prediction: " + responseData);
+                        if (!flagFirst && hand_gesture)
+                        {
+                            SelectedMenuFlag = 0;
+                            MenuSelectedIndex = 0;
+                            mainmenuflag = 2;
+                            flagFirst = true;
+
+                        }
                         if (responseData == "Swipe right" && FlagExecuted == 1)
                         {
-                            Console.WriteLine("Inside right");
-                            viewerControl.ChangeBasedOnCommand("Swipe right");
+                            viewerControl.ChangeBasedOnCommand("Swipe right", 10);
                         }
                         else if (responseData == "Swipe right" && FlagExecuted == 0)
                         {
-                            // logic
+                            Console.WriteLine($"before menu selected index is {MenuSelectedIndex} and Count items is {CountMenuItems} right");
+                            if (MenuSelectedIndex < CountMenuItems - 1)
+                            {
+                                MenuSelectedIndex++;
+                            }
+                            else
+                            {
+                                MenuSelectedIndex = 0;
+                            }
+                            Console.WriteLine($"after menu selected index is {MenuSelectedIndex} Count items is {CountMenuItems} right");
                         }
                         else if (responseData == "Swipe left" && FlagExecuted == 1)
                         {
-                            Console.WriteLine("Inside left");
-                            viewerControl.ChangeBasedOnCommand("Swipe left");
+                            viewerControl.ChangeBasedOnCommand("Swipe left", 10);
                         }
                         else if (responseData == "Swipe left" && FlagExecuted == 0)
                         {
-                            // logic
+                            Console.WriteLine($"before menu selected index is {MenuSelectedIndex} Count items is {CountMenuItems} left");
+                            if (MenuSelectedIndex > 0)
+                            {
+                                MenuSelectedIndex--;
+                            }
+                            else
+                            {
+                                MenuSelectedIndex = CountMenuItems - 1;
+                            }
+                            Console.WriteLine($"after menu selected index is {MenuSelectedIndex} Count items is {CountMenuItems} left");
                         }
                         else if (responseData == "Zoom In" && FlagExecuted == 1)
                         {
-                            Console.WriteLine("Insidd zome in");
                             viewerControl.ChangeBasedOnCommand("Zoom in");
                         }
                         else if (responseData == "Zoom out" && FlagExecuted == 1)
@@ -918,7 +948,15 @@ public class TuioDemo : Form, TuioListener
                         }
                         else if (responseData == "Select" && FlagExecuted == 0)
                         {
-                            check_selection();
+                            check_menu();
+                        }
+                        else if (responseData == "Back" && FlagExecuted == 0)
+                        {
+                            back();
+                        }
+                        using (Graphics g = this.CreateGraphics())
+                        {
+                            DrawDubb(g);
                         }
                     }
                 }
@@ -952,32 +990,6 @@ public class TuioDemo : Form, TuioListener
                 break;
 
         }
-
-        //SelectedMenuFlag
-        //case 1:
-        //    CountMenuItems = 2;
-        //    SelectedMenuFlag = 0;
-        //    imagePaths = new List<string>{
-        //                                                  @"./Crown Dental APP/2d illustrations/All ceramic crown preparation.png",
-        //                                                @"./Crown Dental APP/2d illustrations/Full veneer crown.png",
-        //                                                };
-        //    ActivateDelay();
-        //    break;
-        //case 2:
-        //    CountMenuItems = 2;
-        //    SelectedMenuFlag = 0;
-        //    ActivateDelay();
-        //    break;
-        //case 3:
-        //    CountMenuItems = 2;
-        //    SelectedMenuFlag = 1;
-        //    ActivateDelay();
-        //    break;
-        //case 4:
-        //    CountMenuItems = 2;
-        //    SelectedMenuFlag = 1;
-        //    ActivateDelay();
-        //    break;
     }
 
     protected override void OnPaintBackground(PaintEventArgs pevent)
@@ -1044,7 +1056,7 @@ public class TuioDemo : Form, TuioListener
                 this.mainMenuButton.Dispose();
             }
         }
-        else if (mainmenuflag == 2)
+        else if (mainmenuflag == 2 && !hand_gesture)
         {
             ProcessYoloCommands();
             g.DrawImage(backgroundImage2, new Rectangle(0, 0, width, height));
@@ -1089,19 +1101,14 @@ public class TuioDemo : Form, TuioListener
                             mymenupoints = generatemenu(CountMenuItems);
                             MenuObjs = CreateMenuObjects(mymenupoints);
                             checkrotation(MenuObjs, g, tobj);
-
                             g = drawmenu(MenuObjs, g);
-
-
                         }
                         foreach (TuioObject obj1 in objectList.Values)
                         {
                             foreach (TuioObject obj2 in objectList.Values)
                             {
-
                                 if (obj1.SymbolID == 15 && obj2.SymbolID == 12 && AreObjectsIntersecting(obj1, obj2))
                                 {
-
                                     check_menu();
                                 }
                                 if (FlagExecuted == 1 && (obj1.SymbolID == 5 || obj2.SymbolID == 5))
@@ -1171,9 +1178,15 @@ public class TuioDemo : Form, TuioListener
                 }
             }
         }
-
-
-
+        if (hand_gesture)
+        {
+            //Console.WriteLine($"selected index {MenuSelectedIndex}");
+            g.DrawImage(backgroundImage2, new Rectangle(0, 0, width, height));
+            g.DrawImage(adminImage, new Rectangle(10, 10, 100, 100));
+            mymenupoints = generatemenu(CountMenuItems, MenuSelectedIndex);
+            MenuObjs = CreateMenuObjects(mymenupoints);
+            g = drawmenu(MenuObjs, g);
+        }
     }
 
     public int checkmainmenu()
@@ -1204,7 +1217,6 @@ public class TuioDemo : Form, TuioListener
                     {
                         return 2;
                     }
-
                 }
             }
         }

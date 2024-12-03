@@ -1,5 +1,6 @@
 import cv2
 import mediapipe as mp
+import socket
 from dollarpy import Recognizer, Template, Point
 import csv
 import time
@@ -47,8 +48,27 @@ csv_file_path = 'hand_gesture_templates5.csv'
 loaded_templates = load_templates_from_csv(csv_file_path)
 recognizer = Recognizer(loaded_templates)
 
+def initialize_socket():
+    soc = socket.socket()
+    hostname = "localhost"  # 127.0.0.1 can also be used
+    port = 65434
+    soc.bind((hostname, port))
+    soc.listen(1)
+    print("Waiting for connection...")
+    conn, addr = soc.accept()
+    print("Device connected:", addr)
+    return conn
+
+# Send message through the socket
+def send_message(conn, message):
+    try:
+        encoded_msg = message.encode('utf-8')
+        conn.send(encoded_msg)
+    except Exception as e:
+        print("Failed to send message:", e)
+
 # Use live camera feed for prediction and display in terminal
-def recognize_from_camera():
+def recognize_from_camera(conn):
     cap = cv2.VideoCapture(0)
     accumulated_points = []  
     frame_count = 0
@@ -81,8 +101,10 @@ def recognize_from_camera():
                         if isinstance(result, list) and len(result) > 0 and hasattr(result[0], 'name'):
                             # If result has name and score attributes
                             print(f"Hand: {hand_label} | Recognized Gesture: {result[0].name} | Score: {result[0].score} | Time taken: {end_time - start_time:.2f}s")
+                            send_message(conn, str(result[0].name))  # Send gesture over socket                            
                         else:
                             print(f"Hand: {hand_label} | Recognized Gesture: {result} | Time taken: {end_time - start_time:.2f}s")
+                            send_message(conn, str(result[0]))                            
                         
                         # Reset the accumulator
                         accumulated_points = []
@@ -94,10 +116,19 @@ def recognize_from_camera():
             # Display the video feed
             cv2.imshow("Hand Gesture Recognition", frame)
             if cv2.waitKey(10) & 0xFF == ord('q'):
+                send_message(conn, "exit")
                 break
     
     cap.release()
     cv2.destroyAllWindows()
 
-# Start the recognition from camera
-recognize_from_camera()
+def main():
+    conn = initialize_socket()  # Initialize socket connection
+    try:
+        recognize_from_camera(conn)  # Start gesture recognition with socket
+    finally:
+        conn.close()  # Ensure the connection is closed on exit
+
+# Start the program
+if __name__ == "__main__":
+    main()

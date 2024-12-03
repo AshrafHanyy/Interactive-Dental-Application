@@ -24,7 +24,6 @@ namespace WpfApp1
 
         private void CreateSplitView(string modelFilePath, string imagePath)
         {
-            imagePath = @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\bin\Debug\Crown Dental APP\2d illustrations\Anterior three quarter crown.png";
             if (File.Exists(modelFilePath))
             {
                 LoadSTLModel(modelFilePath);
@@ -96,21 +95,21 @@ namespace WpfApp1
 
 
 
-        public void ChangeBasedOnCommand(string command)
+        public void ChangeBasedOnCommand(string command, int degree = 5)
         {
             switch (command)
             {
                 case "Swipe up":
-                    RotateUpDown(5);
+                    RotateUpDown(degree);
                     break;
                 case "Swipe down":
-                    RotateUpDown(-5);
+                    RotateUpDown(degree);
                     break;
                 case "Swipe right":
-                    Rotate(5);
+                    Rotate(degree);
                     break;
                 case "Swipe left":
-                    Rotate(-5);
+                    Rotate(degree);
                     break;
                 case "Zoom in":
                     ZoomIn();
@@ -141,7 +140,7 @@ namespace WpfApp1
             });
         }
 
-        private void RotateUpDown(double degrees)
+        private void RotateUpDown(double degrees) //To move up and down
         {
             Dispatcher.Invoke(() =>
             {
