@@ -61,7 +61,6 @@
     <Compile Include="TuioDemo.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="TuioDemoObject.cs" />
     <Compile Include="TUIO\TuioClient.cs" />
     <Compile Include="TUIO\TuioContainer.cs" />
     <Compile Include="TUIO\TuioCursor.cs" />
