@@ -24,6 +24,7 @@ using System.ComponentModel;
 using System.Collections.Generic;
 using System.Collections;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 using System.Threading;
 using TUIO;
@@ -42,8 +43,7 @@ using System.Windows.Media.Media3D;
 using System.Windows.Threading;
 using System.Collections.Concurrent;
 using System.Media;
-using static System.Windows.Forms.DataFormats;
-using mohsen;
+
 public class TuioDemo : Form, TuioListener
 {
     private TcpClient serverClient;
@@ -111,15 +111,12 @@ public class TuioDemo : Form, TuioListener
     {
 
         verbose = true;
-        fullscreen = true;
+        fullscreen = false;
         width = window_width;
         height = window_height;
 
-        this.Bounds = Screen.PrimaryScreen.Bounds;
         this.ClientSize = new System.Drawing.Size(width, height);
         this.Name = "Crown Preparation Application";
-
-        // this.WindowState = FormWindowState.Maximized;
         this.Name = "Crown Preparations Interactive App";
         //Button button = new Button();
         //button.Text = "START";
@@ -146,17 +143,12 @@ public class TuioDemo : Form, TuioListener
         client.addTuioListener(this);
 
         client.connect();
+        Task.Run(async () => await ReceivePredictionsAsync()); // need to be called
         // Start the YOLO thread
-        ConnectToServer();
+        //ConnectToServer();
 
-        StartYoloThread();
+        //StartYoloThread();
     }
-
-    private void TuioDemo_Paint(object sender, PaintEventArgs e)
-    {
-        DrawDubb(this.CreateGraphics());
-    }
-
     private void ConnectToServer()
     {
         try
@@ -217,6 +209,7 @@ public class TuioDemo : Form, TuioListener
 
     private void Initialize3DViewer(string file_path, string image_path)
     {
+        Console.WriteLine($"File path is {file_path} and the image path is {image_path}");
         Thread viewerThread = new Thread(() =>
         {
             // Initialize the viewer control and assign it to the class-level variable
@@ -239,6 +232,43 @@ public class TuioDemo : Form, TuioListener
         viewerThread.Start();
     }
 
+    async Task RunPythonScriptAsync(string scriptPath)
+    {
+        try
+        {
+            ProcessStartInfo start = new ProcessStartInfo
+            {
+                FileName = @"C:\Users\Administrator\AppData\Local\Programs\Python\Python312\python.exe", // Ensure python is in PATH or specify full path
+                Arguments = $"\"{@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\test2.py"}\"",
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
+
+            using (Process process = Process.Start(start))
+            {
+                // Wrap synchronous call in Task to prevent UI blocking
+                await Task.Run(() => process.WaitForExit());
+
+                string output = await Task.Run(() => process.StandardOutput.ReadToEnd());
+                string error = await Task.Run(() => process.StandardError.ReadToEnd());
+                if (!string.IsNullOrEmpty(output))
+                {
+                    Console.WriteLine("Python Output: " + output);
+                }
+                if (!string.IsNullOrEmpty(error))
+                {
+                    Console.WriteLine("Python Error: " + error);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Failed to run python script: " + ex.Message);
+        }
+        await ReceivePredictionsAsync();
+    }
 
 
     private void TuioDemo_Load(object sender, EventArgs e)
@@ -246,7 +276,7 @@ public class TuioDemo : Form, TuioListener
         /*        string audiofilepath = ("01 - Track 01.mp3");
                 PlayBackgroundMusic(audiofilepath);*/
         off = new Bitmap(this.ClientSize.Width, this.ClientSize.Height);
-        Task.Run(async () => await ReceivePredictionsAsync());
+        //Task.Run(async () => await ReceivePredictionsAsync());
         this.InitializeComponent();
         //Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Seven-eighth crown preparation.stl", @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Seven-eighth Crown.png");
     }
@@ -265,7 +295,7 @@ public class TuioDemo : Form, TuioListener
                 window_left = this.Left;
                 window_top = this.Top;
 
-                this.FormBorderStyle = FormBorderStyle.Sizable;
+                this.FormBorderStyle = FormBorderStyle.None;
                 this.Left = 0;
                 this.Top = 0;
                 this.Width = screen_width;
@@ -670,7 +700,7 @@ public class TuioDemo : Form, TuioListener
 
     public Graphics drawmenu(List<CActor> menuobjs, Graphics g)
     {
-        FlagExecuted = 0;
+        //FlagExecuted = 0; // need to be moved to block where python file opens
         int cornerRadius = 10;
         int padding = 10;
         bool drawTextBelow = true;
@@ -763,10 +793,12 @@ public class TuioDemo : Form, TuioListener
 
     private void check_menu()
     {
-        string pa = @"./Crown Dental APP/2d illustrations/Inlay.png";
+        string pa = @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\All ceramic crown preparation.png";
         save_selectedMenuFlag = SelectedMenuFlag;
+        Console.WriteLine($"Flag executed: {FlagExecuted}");
         switch (SelectedMenuFlag) // which menu are you're at
         {
+
             case 0://if you're at the first menu 
                 if (MenuSelectedIndex == 0) //if you select the first option [EXTRACORONAL RESTORRATIONS]
                 {
@@ -849,8 +881,16 @@ public class TuioDemo : Form, TuioListener
         }
     }
 
+    private void TuioDemo_Paint(object sender, PaintEventArgs e)
+    {
+        DrawDubb(this.CreateGraphics());
+    }
+
+
     private void check_selection()
     {
+        Console.WriteLine($"Selected menu flag = {SelectedMenuFlag}");
+        Console.WriteLine($"Menu selected index = {MenuSelectedIndex}");
         switch (SelectedMenuFlag) // which menu are you're at
         {
             case 0://if you're at the first menu 
@@ -858,7 +898,7 @@ public class TuioDemo : Form, TuioListener
                 break;
             case 1:
                 CountMenuItems = 2;
-                SelectedMenuFlag = 0; // index of the new menu you're at
+                SelectedMenuFlag = 0;
                 imagePaths = new List<string>{
                                                           @"./Crown Dental APP/2d illustrations/All ceramic crown preparation.png",
                                                         @"./Crown Dental APP/2d illustrations/Full veneer crown.png",
@@ -885,9 +925,11 @@ public class TuioDemo : Form, TuioListener
     private bool flagFirst = false;
     private async Task ReceivePredictionsAsync()
     {
+        hand_gesture = true;
         try
         {
             //hand_gesture flag need to be set to 1 when opening python server
+            Console.WriteLine("Trying to connect");
             using (TcpClient client = new TcpClient("localhost", 65434))
             {
                 client.ReceiveTimeout = 2000;
@@ -947,7 +989,6 @@ public class TuioDemo : Form, TuioListener
                         }
                         else if (responseData == "Zoom In" && FlagExecuted == 1)
                         {
-                            Console.WriteLine("Insidd zome in");
                             viewerControl.ChangeBasedOnCommand("Zoom in");
                         }
                         else if (responseData == "Zoom out" && FlagExecuted == 1)
@@ -1107,9 +1148,7 @@ public class TuioDemo : Form, TuioListener
                             mymenupoints = generatemenu(CountMenuItems);
                             MenuObjs = CreateMenuObjects(mymenupoints);
                             checkrotation(MenuObjs, g, tobj);
-
                             g = drawmenu(MenuObjs, g);
-
                         }
                         foreach (TuioObject obj1 in objectList.Values)
                         {
@@ -1189,6 +1228,14 @@ public class TuioDemo : Form, TuioListener
         if (hand_gesture)
         {
             //Console.WriteLine($"selected index {MenuSelectedIndex}");
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new MethodInvoker(() => mainMenuButton.Visible = false));
+            }
+            else
+            {
+                mainMenuButton.Visible = false;
+            }
             g.DrawImage(backgroundImage2, new Rectangle(0, 0, width, height));
             g.DrawImage(adminImage, new Rectangle(10, 10, 100, 100));
             mymenupoints = generatemenu(CountMenuItems, MenuSelectedIndex);
@@ -1225,7 +1272,6 @@ public class TuioDemo : Form, TuioListener
                     {
                         return 2;
                     }
-
                 }
             }
         }
@@ -1235,15 +1281,29 @@ public class TuioDemo : Form, TuioListener
 
     void DrawDubb(Graphics g)
     {
+        if (hand_gesture)
+        {
+            using (Graphics g2 = Graphics.FromImage(off))
+            {
+                // Draw on the off-screen buffer (bitmap)
+                OnPaintBackground(new PaintEventArgs(g2, new Rectangle(0, 0, off.Width, off.Height)));
 
-        Graphics g2 = Graphics.FromImage(off);
-        DrawScene(g2);
-        g.DrawImage(off, 0, 0);
+                // Draw the off-screen buffer to the on-screen Graphics object
+                g.DrawImage(off, 0, 0);
+            }
+        }
+        else
+        {
+            Graphics g2 = Graphics.FromImage(off);
+            DrawScene(g2);
+            g.DrawImage(off, 0, 0);
+        }
 
     }
     private Button mainMenuButton;
     private void InitializeComponent()
     {
+        this.DoubleBuffered = true;
         // 
         // buttonRJ1
         // 
@@ -1315,7 +1375,7 @@ public class TuioDemo : Form, TuioListener
 
                         yoloThread.IsBackground = true;
                         Console.WriteLine("YOLO client connected.");
-                       if(form2flag == 0)
+                        if (form2flag == 0)
                         {
                             this.Invoke(new Action(() =>
                             {
@@ -1323,8 +1383,8 @@ public class TuioDemo : Form, TuioListener
 
                                 Console.WriteLine($"Form1 queue hash: {yoloCommands.GetHashCode()}");
                                 // Open the new form
-                                Form2 form2 = new Form2(this, yoloCommands);
-                                form2.Show();
+                                //Form2 form2 = new Form2(this, yoloCommands);
+                                //form2.Show();
                             }));
                             form2flag = 1;
                         }
@@ -1352,8 +1412,6 @@ public class TuioDemo : Form, TuioListener
                                 }
                             }
                         }
-
-
                     }
                 }
             }
@@ -1414,31 +1472,31 @@ public class TuioDemo : Form, TuioListener
 
     public static void Main(String[] argv)
     {
-        try
-        {
-            string exePath = @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\reacTIVision-1.5.1-win64 (1)\reacTIVision-1.5.1-win64\reacTIVision.exe";
+        //try
+        //{
+        //    string exePath = @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\reacTIVision-1.5.1-win64 (1)\reacTIVision-1.5.1-win64\reacTIVision.exe";
 
-            // Get the process name (remove the file extension for comparison)
-            string processName = System.IO.Path.GetFileNameWithoutExtension(exePath);
+        //    // Get the process name (remove the file extension for comparison)
+        //    string processName = System.IO.Path.GetFileNameWithoutExtension(exePath);
 
-            // Check if the process is already running
-            var runningProcesses = System.Diagnostics.Process.GetProcessesByName(processName);
+        //    // Check if the process is already running
+        //    var runningProcesses = System.Diagnostics.Process.GetProcessesByName(processName);
 
-            if (runningProcesses.Length > 0)
-            {
-                Console.WriteLine($"The process '{processName}' is already running.");
-            }
-            else
-            {
-                // Start the process if it's not running
-                System.Diagnostics.Process.Start(exePath);
-                Console.WriteLine($"Started process '{processName}'.");
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error starting reacTIVision.exe: {ex.Message}");
-        }
+        //    if (runningProcesses.Length > 0)
+        //    {
+        //        Console.WriteLine($"The process '{processName}' is already running.");
+        //    }
+        //    else
+        //    {
+        //        // Start the process if it's not running
+        //        System.Diagnostics.Process.Start(exePath);
+        //        Console.WriteLine($"Started process '{processName}'.");
+        //    }
+        //}
+        //catch (Exception ex)
+        //{
+        //    Console.WriteLine($"Error starting reacTIVision.exe: {ex.Message}");
+        //}
 
         int port = 0;
         switch (argv.Length)
@@ -1455,7 +1513,6 @@ public class TuioDemo : Form, TuioListener
                 System.Environment.Exit(0);
                 break;
         }
-
         TuioDemo app = new TuioDemo(port);
         Application.Run(app);
     }
