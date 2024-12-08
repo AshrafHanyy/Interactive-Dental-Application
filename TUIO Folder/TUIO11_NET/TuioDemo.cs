@@ -94,6 +94,18 @@ public class TuioDemo : Form, TuioListener
     //elementHost1.Child = viewerControl;
 
     Bitmap off;
+
+
+    // --------------------- BEGIN JOHN WORK ---------------------
+    // Fields for emotion server
+    private TcpClient emotionClient;
+    private Thread emotionClientThread;
+    private bool emotionClientConnected = false;
+    private Label lblEmotionStatus;
+    private Label lblEmotion;
+    // --------------------- END JOHN WORK ---------------------
+
+
     public class CActor
     {
         //public int X, Y;
@@ -249,6 +261,11 @@ public class TuioDemo : Form, TuioListener
         Task.Run(async () => await ReceivePredictionsAsync());
         this.InitializeComponent();
         //Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Seven-eighth crown preparation.stl", @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Seven-eighth Crown.png");
+
+        // --------------------- BEGIN JOHN WORK ---------------------
+        InitializeEmotionComponents(); // Initialize emotion UI
+        ConnectToEmotionServer();     // Connect to the emotion server
+        // --------------------- END JOHN WORK ---------------------
     }
 
     private void Form_KeyDown(object sender, System.Windows.Forms.KeyEventArgs e)
@@ -305,8 +322,119 @@ public class TuioDemo : Form, TuioListener
         client.removeTuioListener(this);
 
         client.disconnect();
+
+        // --------------------- BEGIN JOHN WORK ---------------------
+        DisconnectEmotionClient(); // Ensure the emotion client disconnects
+        // --------------------- END JOHN WORK ---------------------
+
         System.Environment.Exit(0);
     }
+
+
+
+
+    // --------------------- BEGIN JOHN WORK ---------------------
+    // Initialize emotion UI components
+    private void InitializeEmotionComponents()
+    {
+        lblEmotionStatus = new Label
+        {
+            Location = new System.Drawing.Point(20, 30),
+            Size = new System.Drawing.Size(360, 30),
+            Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular),
+            ForeColor = System.Drawing.Color.White,
+            Text = "Emotion Status: Disconnected",
+            BackColor = System.Drawing.Color.Transparent,
+            TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        };
+        this.Controls.Add(lblEmotionStatus);
+
+        lblEmotion = new Label
+        {
+            Location = new System.Drawing.Point(20, 70),
+            Size = new System.Drawing.Size(360, 30),
+            Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular),
+            ForeColor = System.Drawing.Color.White,
+            Text = "Emotion: None",
+            BackColor = System.Drawing.Color.Transparent,
+            TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        };
+        this.Controls.Add(lblEmotion);
+    }
+
+    private void ConnectToEmotionServer()
+    {
+        emotionClientThread = new Thread(() =>
+        {
+            try
+            {
+                emotionClient = new TcpClient("127.0.0.1", 5000);
+                emotionClientConnected = true;
+                UpdateEmotionStatus("Connected to the Emotion Server!");
+
+                NetworkStream stream = emotionClient.GetStream();
+                byte[] buffer = new byte[1024];
+
+                while (emotionClientConnected)
+                {
+                    int bytesRead = stream.Read(buffer, 0, buffer.Length);
+                    if (bytesRead == 0)
+                    {
+                        UpdateEmotionStatus("Connection closed by the Emotion server.");
+                        break;
+                    }
+
+                    string receivedMessage = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                    UpdateEmotionLabel(receivedMessage);
+                }
+            }
+            catch (Exception ex)
+            {
+                UpdateEmotionStatus($"Emotion Error: {ex.Message}");
+            }
+            finally
+            {
+                DisconnectEmotionClient();
+            }
+        })
+        {
+            IsBackground = true
+        };
+        emotionClientThread.Start();
+    }
+
+    private void UpdateEmotionStatus(string message)
+    {
+        if (lblEmotionStatus.InvokeRequired)
+        {
+            lblEmotionStatus.Invoke(new Action(() => lblEmotionStatus.Text = message));
+        }
+        else
+        {
+            lblEmotionStatus.Text = message;
+        }
+    }
+
+    private void UpdateEmotionLabel(string emotion)
+    {
+        if (lblEmotion.InvokeRequired)
+        {
+            lblEmotion.Invoke(new Action(() => lblEmotion.Text = $"Emotion: {emotion}"));
+        }
+        else
+        {
+            lblEmotion.Text = $"Emotion: {emotion}";
+        }
+    }
+
+    private void DisconnectEmotionClient()
+    {
+        emotionClientConnected = false;
+        emotionClient?.Close();
+        UpdateEmotionStatus("Disconnected from the Emotion Server.");
+    }
+    // --------------------- END JOHN WORK ---------------------
+
 
     public void addTuioObject(TuioObject o)
     {
@@ -1315,7 +1443,7 @@ public class TuioDemo : Form, TuioListener
 
                         yoloThread.IsBackground = true;
                         Console.WriteLine("YOLO client connected.");
-                       if(form2flag == 0)
+                        if (form2flag == 0)
                         {
                             this.Invoke(new Action(() =>
                             {

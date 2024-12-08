@@ -22,3 +22,9 @@ C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\T
 C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\obj\Debug\TUIO_LIB.csproj.CoreCompileInputs.cache
 C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\obj\Debug\libTUIO.dll
 C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\obj\Debug\libTUIO.pdb
+C:\Users\John\OneDrive\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\bin\Debug\libTUIO.dll
+C:\Users\John\OneDrive\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\bin\Debug\libTUIO.pdb
+C:\Users\John\OneDrive\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\obj\Debug\TUIO_LIB.csproj.AssemblyReference.cache
+C:\Users\John\OneDrive\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\obj\Debug\TUIO_LIB.csproj.CoreCompileInputs.cache
+C:\Users\John\OneDrive\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\obj\Debug\libTUIO.dll
+C:\Users\John\OneDrive\Documents\GitHub\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\obj\Debug\libTUIO.pdb
