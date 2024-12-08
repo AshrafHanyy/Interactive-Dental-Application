@@ -218,7 +218,6 @@ public class TuioDemo : Form, TuioListener
         }
     }
 
-
     private void Initialize3DViewer(string file_path, string image_path)
     {
         Console.WriteLine($"File path is {file_path} and the image path is {image_path}");
@@ -553,12 +552,12 @@ public class TuioDemo : Form, TuioListener
                 if (rotationDifference > rotationThreshold)
                 {
                     // Play sound effect
-                    player.Play();
+                    //layer.Play();
                 }
                 if (rotationDifference < -rotationThreshold)
                 {
                     // Play sound effect
-                    player.Play();
+                    //player.Play();
                 }
                 // Update the selected menu index
                 MenuSelectedIndex = newMenuIndex;
@@ -1053,7 +1052,7 @@ public class TuioDemo : Form, TuioListener
     private bool flagFirst = false;
     private async Task ReceivePredictionsAsync()
     {
-        hand_gesture = true;
+        //hand_gesture = true;
         try
         {
             //hand_gesture flag need to be set to 1 when opening python server
