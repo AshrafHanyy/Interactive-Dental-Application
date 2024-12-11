@@ -7,6 +7,28 @@ cred = credentials.Certificate("dentalapp-87611-firebase-adminsdk-9li4a-7c664153
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
+#--------------------------EXPERIMENT CRUD--------------------------
+#student_id = "222869"
+#student_name = "Amr Akl"
+#student_exp = "TUIO"
+#eye_coordinates = [{"x": 34.5, "y": 56.7}]
+#doc_ref = db.collection("students").document(student_id)
+#doc_ref.set({
+#    "student_id":student_id,
+#    "student_name": student_name,
+#    "student_exp": student_exp, 
+#    "eye_coordinates": eye_coordinates,
+#})
+
+#student_id = "222869"
+#doc_ref = db.collection("students").document(student_id)
+#doc = doc_ref.get()
+#data = doc.to_dict()
+#student_name = data.get("student_name", None)
+#student_exp = data.get("student_exp", None)
+#eye_coordinates = data.get("eye_coordinates", None)
+#print(eye_coordinates)
+
 #--------------------------Devices CRUD--------------------------
 # Create a document for the device and save the data
 #device_MAC = "NFIENF-vvfnrin-rgk"
