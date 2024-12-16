@@ -80,6 +80,7 @@ if __name__ == "__main__":
     student_name = "test2"
     student_exp = "TUIO"
     eye_coordinates = gaze_data
+    print(gaze_data)
     doc_ref = db.collection("students").document(student_id)
     doc_ref.set({
         "student_id":student_id,
