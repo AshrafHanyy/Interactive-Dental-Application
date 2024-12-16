@@ -86,7 +86,7 @@ public class TuioDemo : Form, TuioListener
     SolidBrush blbBrush = new SolidBrush(Color.FromArgb(64, 64, 64));
     Pen curPen = new Pen(new SolidBrush(Color.Blue), 1);
     string message = string.Empty;
-    private bool hand_gesture = false;
+    private bool hand_gesture = true;
 
     List<Point> mymenupoints = new List<Point>();
 
@@ -150,6 +150,7 @@ public class TuioDemo : Form, TuioListener
         objectList = new Dictionary<long, TuioObject>(128);
         cursorList = new Dictionary<long, TuioCursor>(128);
         blobList = new Dictionary<long, TuioBlob>(128);
+        Task.Run(async () => await RunPythonScriptAsync(@"s"));
 
         client = new TuioClient(port);
         client.addTuioListener(this);
@@ -1088,7 +1089,7 @@ public class TuioDemo : Form, TuioListener
     private bool flagFirst = false;
     private async Task ReceivePredictionsAsync()
     {
-        //hand_gesture = true;
+        hand_gesture = true;
         try
         {
             //hand_gesture flag need to be set to 1 when opening python server
@@ -1116,11 +1117,11 @@ public class TuioDemo : Form, TuioListener
                             flagFirst = true;
 
                         }
-                        if (responseData == "Swipe right" && FlagExecuted == 1)
+                        if (responseData == "Swipe Right" && FlagExecuted == 1)
                         {
                             viewerControl.ChangeBasedOnCommand("Swipe right", 10);
                         }
-                        else if (responseData == "Swipe right" && FlagExecuted == 0)
+                        if (responseData == "Swipe Right")
                         {
                             Console.WriteLine($"before menu selected index is {MenuSelectedIndex} and Count items is {CountMenuItems} right");
                             if (MenuSelectedIndex < CountMenuItems - 1)
@@ -1133,11 +1134,11 @@ public class TuioDemo : Form, TuioListener
                             }
                             Console.WriteLine($"after menu selected index is {MenuSelectedIndex} Count items is {CountMenuItems} right");
                         }
-                        else if (responseData == "Swipe left" && FlagExecuted == 1)
+                        else if (responseData == "Swipe Left" && FlagExecuted == 1)
                         {
                             viewerControl.ChangeBasedOnCommand("Swipe left", 10);
                         }
-                        else if (responseData == "Swipe left" && FlagExecuted == 0)
+                        if (responseData == "Swipe Left")
                         {
                             Console.WriteLine($"before menu selected index is {MenuSelectedIndex} Count items is {CountMenuItems} left");
                             if (MenuSelectedIndex > 0)
@@ -1162,7 +1163,7 @@ public class TuioDemo : Form, TuioListener
                         {
                             check_menu();
                         }
-                        else if (responseData == "Back" && FlagExecuted == 0)
+                        else if (responseData == "Back")
                         {
                             back();
                         }
@@ -1637,31 +1638,31 @@ public class TuioDemo : Form, TuioListener
 
     public static void Main(String[] argv)
     {
-        try
-        {
-            string exePath = @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\reacTIVision-1.5.1-win64 (1)\reacTIVision-1.5.1-win64\reacTIVision.exe";
+        //try
+        //{
+        //    string exePath = @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\reacTIVision-1.5.1-win64 (1)\reacTIVision-1.5.1-win64\reacTIVision.exe";
 
-            // Get the process name (remove the file extension for comparison)
-            string processName = System.IO.Path.GetFileNameWithoutExtension(exePath);
+        //    // Get the process name (remove the file extension for comparison)
+        //    string processName = System.IO.Path.GetFileNameWithoutExtension(exePath);
 
-            // Check if the process is already running
-            var runningProcesses = System.Diagnostics.Process.GetProcessesByName(processName);
+        //    // Check if the process is already running
+        //    var runningProcesses = System.Diagnostics.Process.GetProcessesByName(processName);
 
-            if (runningProcesses.Length > 0)
-            {
-                Console.WriteLine($"The process '{processName}' is already running.");
-            }
-            else
-            {
-                // Start the process if it's not running
-                System.Diagnostics.Process.Start(exePath);
-                Console.WriteLine($"Started process '{processName}'.");
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error starting reacTIVision.exe: {ex.Message}");
-        }
+        //    if (runningProcesses.Length > 0)
+        //    {
+        //        Console.WriteLine($"The process '{processName}' is already running.");
+        //    }
+        //    else
+        //    {
+        //        // Start the process if it's not running
+        //        System.Diagnostics.Process.Start(exePath);
+        //        Console.WriteLine($"Started process '{processName}'.");
+        //    }
+        //}
+        //catch (Exception ex)
+        //{
+        //    Console.WriteLine($"Error starting reacTIVision.exe: {ex.Message}");
+        //}
 
         int port = 0;
         switch (argv.Length)

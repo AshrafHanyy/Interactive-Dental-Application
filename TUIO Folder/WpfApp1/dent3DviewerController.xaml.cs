@@ -185,7 +185,6 @@ namespace WpfApp1
         }
 
 
-
         private void ZoomIn()
         {
             Dispatcher.Invoke(() =>

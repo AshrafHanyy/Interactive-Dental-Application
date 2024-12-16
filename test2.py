@@ -1,5 +1,6 @@
 import cv2
 import mediapipe as mp
+import socket
 from dollarpy import Recognizer, Template, Point
 import csv
 import time
@@ -41,13 +42,31 @@ def load_templates_from_csv(csv_file_path):
     return loaded_templates
 
 # Initialize recognizer and load templates
-csv_file_path = 'hand_gesture_templates5.csv'
+csv_file_path = r"C:\Users\Administrator\source\repos\Interactive-Dental-Application\hand_gesture_templates5.csv"
 loaded_templates = load_templates_from_csv(csv_file_path)
 recognizer = Recognizer([template for template, _ in loaded_templates])
 
 # Swipe detection thresholds
 SWIPE_THRESHOLD = 0.4
-FRAME_ACCUMULATION = 20
+
+def initialize_socket():
+    soc = socket.socket()
+    hostname = "localhost"  # 127.0.0.1 can also be used
+    port = 65434
+    soc.bind((hostname, port))
+    soc.listen(1)
+    print("Waiting for connection...")
+    conn, addr = soc.accept()
+    print("Device connected:", addr)
+    return conn
+
+# Send message through the socket
+def send_message(conn, message):
+    try:
+        encoded_msg = message.encode('utf-8')
+        conn.send(encoded_msg)
+    except Exception as e:
+        print("Failed to send message:", e)
 
 def detect_swipe_direction(points, hand_label):
     """
@@ -66,7 +85,7 @@ def detect_swipe_direction(points, hand_label):
     return None
 
 # Use live camera feed for prediction
-def recognize_from_camera():
+def recognize_from_camera(conn):
     cap = cv2.VideoCapture(0)
     accumulated_points = []
     accumulated_directions = []
@@ -95,23 +114,22 @@ def recognize_from_camera():
                     frame_count += 1
                     
                     if frame_count >= 50:
-                        #swipe_direction = detect_swipe_direction(accumulated_points, hand_label)
-                        #if swipe_direction:
-                        #    print(f"Hand: {hand_label} | Detected Gesture: {swipe_direction} | Time taken: {time.time() - start_time:.2f}s")
-                        #else:
                         gesture_start_time = time.time()
                         result = recognizer.recognize(accumulated_points)
                         gesture_end_time = time.time()
+                        
                         if isinstance(result, list) and len(result) > 0 and hasattr(result[0], 'name'):
                             print(f"Hand: {hand_label} | Recognized Gesture: {result[0].name} | Score: {result[0].score} | Time taken: {gesture_end_time - gesture_start_time:.2f}s")
+                            send_message(conn, result[0].name) 
                         else:
                             if result[0] == "Swipe right" or result[0] == "Swipe left":
                                 swipe_direction = detect_swipe_direction(accumulated_points, hand_label)
                                 print(f"Hand: {hand_label} | Recognized Gesture: {swipe_direction} | Time taken: {gesture_end_time - gesture_start_time:.2f}s")
+                                send_message(conn, swipe_direction)  
                             else:    
                                 print(f"Hand: {hand_label} | Recognized Gesture: {result} | Time taken: {gesture_end_time - gesture_start_time:.2f}s")
+                                send_message(conn, str(result[0])) 
                         
-                        # Retain a sliding window of the last few points
                         accumulated_points = []
                         accumulated_directions = []
                         frame_count = 0
@@ -120,13 +138,18 @@ def recognize_from_camera():
             
             cv2.imshow("Hand Gesture Recognition", frame)
             if cv2.waitKey(10) & 0xFF == ord('q'):
+                send_message(conn, "exit")
                 break
     
     cap.release()
     cv2.destroyAllWindows()
 
 def main():
-    recognize_from_camera()
+    conn = initialize_socket()  # Initialize socket connection
+    try:
+        recognize_from_camera(conn)  # Start gesture recognition with socket
+    finally:
+        conn.close()  # Ensure the connection is closed on exit
 
 if __name__ == "__main__":
     main()
