@@ -150,7 +150,7 @@ public class TuioDemo : Form, TuioListener
         objectList = new Dictionary<long, TuioObject>(128);
         cursorList = new Dictionary<long, TuioCursor>(128);
         blobList = new Dictionary<long, TuioBlob>(128);
-        Task.Run(async () => await RunPythonScriptAsync(@"s"));
+        //Task.Run(async () => await RunPythonScriptAsync(@"s"));
 
         client = new TuioClient(port);
         client.addTuioListener(this);
@@ -259,6 +259,7 @@ public class TuioDemo : Form, TuioListener
                     viewerWindow.Closed += (sender, args) =>
                     {
                         System.Windows.Threading.Dispatcher.CurrentDispatcher.InvokeShutdown();
+                        FlagExecuted = 0;
                     };
 
                     viewerWindow.Show();
@@ -271,12 +272,6 @@ public class TuioDemo : Form, TuioListener
             }
         }
     }
-
-
-
-
-
-
 
     async Task RunPythonScriptAsync(string scriptPath)
     {
@@ -1027,7 +1022,7 @@ public class TuioDemo : Form, TuioListener
             case 4:
                 if (MenuSelectedIndex == 0 && FlagExecuted == 0)
                 {
-                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Anterior Three quarter crown preparation .stl", @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Anterior three quarter crown.png");
+                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Anterior Three quarter crown preparation.stl", @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Anterior three quarter crown.png");
                     FlagExecuted = 1;
                 }
                 else if (MenuSelectedIndex == 1 && FlagExecuted == 0)
@@ -1119,11 +1114,11 @@ public class TuioDemo : Form, TuioListener
                         }
                         if (responseData == "Swipe up" && FlagExecuted == 1)
                         {
-                            viewerControl.ChangeBasedOnCommand("Swipe up", 10);
+                            viewerControl.ChangeBasedOnCommand("Swipe up");
                         }
                         if (responseData == "Swipe Right" && FlagExecuted == 1)
                         {
-                            viewerControl.ChangeBasedOnCommand("Swipe right", 10);
+                            viewerControl.ChangeBasedOnCommand("Swipe right");
                         }
                         if (responseData == "Swipe Right")
                         {
@@ -1140,7 +1135,7 @@ public class TuioDemo : Form, TuioListener
                         }
                         else if (responseData == "Swipe Left" && FlagExecuted == 1)
                         {
-                            viewerControl.ChangeBasedOnCommand("Swipe left", 10);
+                            viewerControl.ChangeBasedOnCommand("Swipe left");
                         }
                         if (responseData == "Swipe Left")
                         {
@@ -1163,8 +1158,9 @@ public class TuioDemo : Form, TuioListener
                         {
                             viewerControl.ChangeBasedOnCommand("Zoom out");
                         }
-                        else if (responseData == "Select" && FlagExecuted == 0)
+                        else if (responseData == "Select")
                         {
+                            FlagExecuted = 0;
                             check_menu();
                         }
                         else if (responseData == "Back")
@@ -1188,7 +1184,8 @@ public class TuioDemo : Form, TuioListener
 
     public void back()
     {
-        FlagExecuted = 0;
+        //FlagExecuted = 0;
+        Console.WriteLine(FlagExecuted);
         switch (SelectedMenuFlag)
         {
             case 1:
