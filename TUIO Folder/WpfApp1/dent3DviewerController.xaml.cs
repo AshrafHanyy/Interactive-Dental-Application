@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,42 +16,65 @@ namespace WpfApp1
         private double _currentRotationAngle = 0;
         private double _currentVerticalRotationAngle = 0;
 
-        public dent3DviewerController(string filePath, string imagePath)
+        public dent3DviewerController(string filePath, string imagePath, int flag)
         {
-            InitializeComponent();
+           InitializeComponent();
+           CreateSplitView(filePath, imagePath);
+        }
 
-            CreateSplitView(filePath, imagePath);
+        public void UpdateRowSource(string filePath, string imagePath)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                CreateSplitView(filePath, imagePath);
+            });
         }
 
         private void CreateSplitView(string modelFilePath, string imagePath)
         {
-            if (File.Exists(modelFilePath))
+            Dispatcher.Invoke(() =>
             {
-                LoadSTLModel(modelFilePath);
-            }
-            else
-            {
-                MessageBox.Show($"3D model file not found: {modelFilePath}");
-            }
+                // Clear existing content
+                if (modelVisual != null && modelVisual.Content != null)
+                {
+                    modelVisual.Content = null;  // Clear the 3D content if applicable
+                }
 
-            _camera = new PerspectiveCamera
-            {
-                Position = new Point3D(0, 0, 300),
-                LookDirection = new Vector3D(0, 0, -1),
-                UpDirection = new Vector3D(0, 1, 0),
-                FieldOfView = 60
-            };
-            viewport.Camera = _camera;
+                if (File.Exists(modelFilePath))
+                {
+                    LoadSTLModel(modelFilePath);
+                }
+                else
+                {
+                    MessageBox.Show($"3D model file not found: {modelFilePath}", "File Error");
+                    return; // Exit if the file isn't found after showing the message
+                }
 
-            if (File.Exists(imagePath))
-            {
-                imageViewer.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri(imagePath, UriKind.Absolute));
-            }
-            else
-            {
-                MessageBox.Show($"Image file not found: {imagePath}");
-            }
+                // Reset or recreate the camera if needed
+                _camera = new PerspectiveCamera
+                {
+                    Position = new Point3D(0, 0, 300),
+                    LookDirection = new Vector3D(0, 0, -1),
+                    UpDirection = new Vector3D(0, 1, 0),
+                    FieldOfView = 60
+                };
+                viewport.Camera = _camera;
+
+                if (File.Exists(imagePath))
+                {
+                    imageViewer.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri(imagePath, UriKind.Absolute));
+                }
+                else
+                {
+                    MessageBox.Show($"Image file not found: {imagePath}", "File Error");
+                }
+
+                // Explicitly refresh the viewport and image viewer if applicable
+                viewport.InvalidateVisual();
+                imageViewer.InvalidateVisual();
+            });
         }
+
 
 
         private void LoadSTLModel(string filePath)
@@ -109,7 +133,7 @@ namespace WpfApp1
                     Rotate(degree);
                     break;
                 case "Swipe left":
-                    Rotate(degree);
+                    Rotate(-degree);
                     break;
                 case "Zoom in":
                     ZoomIn();
@@ -168,7 +192,7 @@ namespace WpfApp1
             {
                 if (_camera.Position.Z > 100)
                 {
-                    _camera.Position = new Point3D(_camera.Position.X, _camera.Position.Y, _camera.Position.Z - 50);
+                    _camera.Position = new Point3D(_camera.Position.X, _camera.Position.Y, _camera.Position.Z - 20);
                     viewport.InvalidateVisual();
                 }
             });
@@ -180,7 +204,7 @@ namespace WpfApp1
             {
                 if (_camera.Position.Z < 1000)
                 {
-                    _camera.Position = new Point3D(_camera.Position.X, _camera.Position.Y, _camera.Position.Z + 50);
+                    _camera.Position = new Point3D(_camera.Position.X, _camera.Position.Y, _camera.Position.Z + 20);
                     viewport.InvalidateVisual();
                 }
             });

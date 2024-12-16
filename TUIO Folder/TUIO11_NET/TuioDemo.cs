@@ -218,30 +218,64 @@ public class TuioDemo : Form, TuioListener
         }
     }
 
+    private object viewerLock = new object(); // Ensure thread safety
+    private System.Windows.Window viewerWindow;
+    private Thread viewerThread;
+
     private void Initialize3DViewer(string file_path, string image_path)
     {
         Console.WriteLine($"File path is {file_path} and the image path is {image_path}");
-        Thread viewerThread = new Thread(() =>
+        lock (viewerLock)
         {
-            // Initialize the viewer control and assign it to the class-level variable
-            viewerControl = new WpfApp1.dent3DviewerController(file_path, image_path);
-
-            var viewerWindow = new System.Windows.Window
+            if (viewerWindow != null)
             {
-                Title = "3D Viewer",
-                Content = viewerControl,
-                WindowState = System.Windows.WindowState.Maximized
-            };
+                viewerWindow.Dispatcher.Invoke(() =>
+                {
+                    // Instead of closing the window, update the existing viewer control
+                    viewerControl.UpdateRowSource(file_path, image_path);
+                });
+            }
+            else
+            {
+                if (viewerThread != null && viewerThread.IsAlive)
+                {
+                    viewerThread.Abort(); // Abort the previous thread if it's still running
+                    viewerThread.Join();  // Wait for the thread to finish
+                }
 
-            // Show the window and start the dispatcher loop for this thread
-            viewerWindow.Show();
-            Dispatcher.Run();
-        });
+                // Create a new thread only if the window does not exist
+                viewerThread = new Thread(() =>
+                {
+                    viewerControl = new WpfApp1.dent3DviewerController(file_path, image_path, 0);
 
-        viewerThread.SetApartmentState(ApartmentState.STA); // Required for WPF
-        viewerThread.IsBackground = true;
-        viewerThread.Start();
+                    viewerWindow = new System.Windows.Window
+                    {
+                        Title = "3D Viewer",
+                        Content = viewerControl,
+                        WindowState = System.Windows.WindowState.Maximized
+                    };
+
+                    viewerWindow.Closed += (sender, args) =>
+                    {
+                        System.Windows.Threading.Dispatcher.CurrentDispatcher.InvokeShutdown();
+                    };
+
+                    viewerWindow.Show();
+                    System.Windows.Threading.Dispatcher.Run();
+                });
+
+                viewerThread.SetApartmentState(ApartmentState.STA);
+                viewerThread.IsBackground = true;
+                viewerThread.Start();
+            }
+        }
     }
+
+
+
+
+
+
 
     async Task RunPythonScriptAsync(string scriptPath)
     {
@@ -366,29 +400,29 @@ public class TuioDemo : Form, TuioListener
     // Initialize emotion UI components
     private void InitializeEmotionComponents()
     {
-        lblEmotionStatus = new Label
-        {
-            Location = new System.Drawing.Point(20, 30),
-            Size = new System.Drawing.Size(360, 30),
-            Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular),
-            ForeColor = System.Drawing.Color.White,
-            Text = "Emotion Status: Disconnected",
-            BackColor = System.Drawing.Color.Transparent,
-            TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        };
-        this.Controls.Add(lblEmotionStatus);
+        //lblEmotionStatus = new Label
+        //{
+        //    Location = new System.Drawing.Point(20, 30),
+        //    Size = new System.Drawing.Size(360, 30),
+        //    Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular),
+        //    ForeColor = System.Drawing.Color.White,
+        //    Text = "Emotion Status: Disconnected",
+        //    BackColor = System.Drawing.Color.Transparent,
+        //    TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        //};
+        //this.Controls.Add(lblEmotionStatus);
 
-        lblEmotion = new Label
-        {
-            Location = new System.Drawing.Point(20, 70),
-            Size = new System.Drawing.Size(360, 30),
-            Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular),
-            ForeColor = System.Drawing.Color.White,
-            Text = "Emotion: None",
-            BackColor = System.Drawing.Color.Transparent,
-            TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        };
-        this.Controls.Add(lblEmotion);
+        //lblEmotion = new Label
+        //{
+        //    Location = new System.Drawing.Point(20, 70),
+        //    Size = new System.Drawing.Size(360, 30),
+        //    Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular),
+        //    ForeColor = System.Drawing.Color.White,
+        //    Text = "Emotion: None",
+        //    BackColor = System.Drawing.Color.Transparent,
+        //    TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        //};
+        //this.Controls.Add(lblEmotion);
     }
 
     private void ConnectToEmotionServer()
@@ -434,14 +468,14 @@ public class TuioDemo : Form, TuioListener
 
     private void UpdateEmotionStatus(string message)
     {
-        if (lblEmotionStatus.InvokeRequired)
-        {
-            lblEmotionStatus.Invoke(new Action(() => lblEmotionStatus.Text = message));
-        }
-        else
-        {
-            lblEmotionStatus.Text = message;
-        }
+        //if (lblEmotionStatus.InvokeRequired)
+        //{
+        //    lblEmotionStatus.Invoke(new Action(() => lblEmotionStatus.Text = message));
+        //}
+        //else
+        //{
+        //    lblEmotionStatus.Text = message;
+        //}
     }
 
     private void UpdateEmotionLabel(string emotion)
@@ -863,7 +897,7 @@ public class TuioDemo : Form, TuioListener
                     break;
                 case 3:
 
-                    itemText = (i == 0) ? "Full \r\n veneer" : "All \r\n Ceramic";
+                    itemText = (i == 0) ? "All \r\n Ceramic" : "Full \r\n veneer";
                     break;
                 case 4:
 
@@ -873,11 +907,13 @@ public class TuioDemo : Form, TuioListener
                     }
                     else if (i == 1)
                     {
-                        itemText = "Seven Eighth";
+
+                        itemText = "Pin Modified"; 
+                        
                     }
                     else
                     {
-                        itemText = "Pin Moidified";
+                        itemText = "Seven Eighth";
 
                     }
                     break;
@@ -1147,12 +1183,14 @@ public class TuioDemo : Form, TuioListener
 
     public void back()
     {
+        FlagExecuted = 0;
         switch (SelectedMenuFlag)
         {
             case 1:
                 SelectedMenuFlag = 0;
                 break;
             case 2:
+
                 SelectedMenuFlag = 0;
                 CountMenuItems = 2;
                 break;
@@ -1584,11 +1622,11 @@ public class TuioDemo : Form, TuioListener
         if (isDelayActive) return false;
         int obj1X = obj1.getScreenX(width);
         int obj1Y = obj1.getScreenY(height);
-        int obj1Size = 260;
+        int obj1Size = 600;
 
         int obj2X = obj2.getScreenX(width);
         int obj2Y = obj2.getScreenY(height);
-        int obj2Size = 100;
+        int obj2Size = 600;
 
         //this.Text = "(" + obj1X + " , " + obj1Y + ") (" + obj2X + " , " + obj2Y + ") " + "Size: " + obj1Size;
 
@@ -1599,31 +1637,31 @@ public class TuioDemo : Form, TuioListener
 
     public static void Main(String[] argv)
     {
-        //try
-        //{
-        //    string exePath = @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\reacTIVision-1.5.1-win64 (1)\reacTIVision-1.5.1-win64\reacTIVision.exe";
+        try
+        {
+            string exePath = @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\reacTIVision-1.5.1-win64 (1)\reacTIVision-1.5.1-win64\reacTIVision.exe";
 
-        //    // Get the process name (remove the file extension for comparison)
-        //    string processName = System.IO.Path.GetFileNameWithoutExtension(exePath);
+            // Get the process name (remove the file extension for comparison)
+            string processName = System.IO.Path.GetFileNameWithoutExtension(exePath);
 
-        //    // Check if the process is already running
-        //    var runningProcesses = System.Diagnostics.Process.GetProcessesByName(processName);
+            // Check if the process is already running
+            var runningProcesses = System.Diagnostics.Process.GetProcessesByName(processName);
 
-        //    if (runningProcesses.Length > 0)
-        //    {
-        //        Console.WriteLine($"The process '{processName}' is already running.");
-        //    }
-        //    else
-        //    {
-        //        // Start the process if it's not running
-        //        System.Diagnostics.Process.Start(exePath);
-        //        Console.WriteLine($"Started process '{processName}'.");
-        //    }
-        //}
-        //catch (Exception ex)
-        //{
-        //    Console.WriteLine($"Error starting reacTIVision.exe: {ex.Message}");
-        //}
+            if (runningProcesses.Length > 0)
+            {
+                Console.WriteLine($"The process '{processName}' is already running.");
+            }
+            else
+            {
+                // Start the process if it's not running
+                System.Diagnostics.Process.Start(exePath);
+                Console.WriteLine($"Started process '{processName}'.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error starting reacTIVision.exe: {ex.Message}");
+        }
 
         int port = 0;
         switch (argv.Length)
