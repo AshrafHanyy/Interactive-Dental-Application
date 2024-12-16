@@ -1117,6 +1117,10 @@ public class TuioDemo : Form, TuioListener
                             flagFirst = true;
 
                         }
+                        if (responseData == "Swipe up" && FlagExecuted == 1)
+                        {
+                            viewerControl.ChangeBasedOnCommand("Swipe up", 10);
+                        }
                         if (responseData == "Swipe Right" && FlagExecuted == 1)
                         {
                             viewerControl.ChangeBasedOnCommand("Swipe right", 10);
