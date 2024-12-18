@@ -37,16 +37,22 @@ namespace WpfApp1
                 // Clear existing content
                 if (modelVisual != null && modelVisual.Content != null)
                 {
-                    modelVisual.Content = null;  // Clear the 3D content if applicable
+                    modelVisual.Content = null; // Clear the 3D content if applicable
                 }
 
-                if (File.Exists(modelFilePath))
+                // Resolve relative paths to absolute paths
+                string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                string resolvedModelFilePath = Path.Combine(baseDirectory, modelFilePath);
+                string resolvedImagePath = Path.Combine(baseDirectory, imagePath);
+
+                // Load the 3D model
+                if (File.Exists(resolvedModelFilePath))
                 {
-                    LoadSTLModel(modelFilePath);
+                    LoadSTLModel(resolvedModelFilePath);
                 }
                 else
                 {
-                    MessageBox.Show($"3D model file not found: {modelFilePath}", "File Error");
+                    MessageBox.Show($"3D model file not found: {resolvedModelFilePath}", "File Error");
                     return; // Exit if the file isn't found after showing the message
                 }
 
@@ -60,13 +66,14 @@ namespace WpfApp1
                 };
                 viewport.Camera = _camera;
 
-                if (File.Exists(imagePath))
+                // Load the image
+                if (File.Exists(resolvedImagePath))
                 {
-                    imageViewer.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri(imagePath, UriKind.Absolute));
+                    imageViewer.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri(resolvedImagePath, UriKind.Absolute));
                 }
                 else
                 {
-                    MessageBox.Show($"Image file not found: {imagePath}", "File Error");
+                    MessageBox.Show($"Image file not found: {resolvedImagePath}", "File Error");
                 }
 
                 // Explicitly refresh the viewport and image viewer if applicable
@@ -74,6 +81,7 @@ namespace WpfApp1
                 imageViewer.InvalidateVisual();
             });
         }
+
 
 
 
@@ -119,7 +127,7 @@ namespace WpfApp1
 
 
 
-        public void ChangeBasedOnCommand(string command, int degree = 5)
+        public void ChangeBasedOnCommand(string command, int degree = 40)
         {
             switch (command)
             {

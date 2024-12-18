@@ -113,7 +113,7 @@ def recognize_from_camera(conn):
                     accumulated_directions.extend(directions)
                     frame_count += 1
                     
-                    if frame_count >= 50:
+                    if frame_count >= 20:
                         gesture_start_time = time.time()
                         result = recognizer.recognize(accumulated_points)
                         gesture_end_time = time.time()

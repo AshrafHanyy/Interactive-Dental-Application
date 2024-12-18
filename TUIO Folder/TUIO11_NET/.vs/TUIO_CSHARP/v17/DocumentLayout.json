@@ -3,37 +3,45 @@
   "WorkspaceRootPath": "C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application\\TUIO Folder\\TUIO11_NET\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{83F18314-A320-4148-A5A5-D8FD091FC407}|TUIO_DEMO.csproj|C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application\\TUIO Folder\\TUIO11_NET\\tuiodemo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{83F18314-A320-4148-A5A5-D8FD091FC407}|TUIO_DEMO.csproj|solutionrelative:tuiodemo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{CE934A2C-523C-4B29-BE2B-51585810277C}|..\\WpfApp1\\WpfApp1.csproj|c:\\users\\administrator\\source\\repos\\interactive-dental-application\\tuio folder\\wpfapp1\\dent3dviewercontroller.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application2\\TUIO Folder\\WpfApp1\\MainWindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+      "AbsoluteMoniker": "D:0:0:{83F18314-A320-4148-A5A5-D8FD091FC407}|TUIO_DEMO.csproj|c:\\users\\administrator\\source\\repos\\interactive-dental-application\\tuio folder\\tuio11_net\\tuiodemo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{83F18314-A320-4148-A5A5-D8FD091FC407}|TUIO_DEMO.csproj|solutionrelative:tuiodemo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CE934A2C-523C-4B29-BE2B-51585810277C}|..\\WpfApp1\\WpfApp1.csproj|c:\\users\\administrator\\source\\repos\\interactive-dental-application\\tuio folder\\wpfapp1\\dent3dviewercontroller.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+      "AbsoluteMoniker": "D:0:0:{83F18314-A320-4148-A5A5-D8FD091FC407}|TUIO_DEMO.csproj|C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application\\TUIO Folder\\TUIO11_NET\\tuiodemo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{83F18314-A320-4148-A5A5-D8FD091FC407}|TUIO_DEMO.csproj|solutionrelative:tuiodemo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{83F18314-A320-4148-A5A5-D8FD091FC407}|TUIO_DEMO.csproj|C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application\\TUIO Folder\\TUIO11_NET\\app.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{83F18314-A320-4148-A5A5-D8FD091FC407}|TUIO_DEMO.csproj|solutionrelative:app.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\MSI SWORD\\source\\repos\\Interactive-Dental-Application\\TUIO Folder\\WpfApp1\\dent3DviewerController.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{83F18314-A320-4148-A5A5-D8FD091FC407}|TUIO_DEMO.csproj|C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application\\TUIO Folder\\TUIO11_NET\\osc.net\\oscmessage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{83F18314-A320-4148-A5A5-D8FD091FC407}|TUIO_DEMO.csproj|solutionrelative:osc.net\\oscmessage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application2\\TUIO Folder\\WpfApp1\\MainWindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{83F18314-A320-4148-A5A5-D8FD091FC407}|TUIO_DEMO.csproj|C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application\\TUIO Folder\\TUIO11_NET\\osc.net\\oscbundle.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{83F18314-A320-4148-A5A5-D8FD091FC407}|TUIO_DEMO.csproj|solutionrelative:osc.net\\oscbundle.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{CE934A2C-523C-4B29-BE2B-51585810277C}|..\\WpfApp1\\WpfApp1.csproj|c:\\users\\administrator\\source\\repos\\interactive-dental-application\\tuio folder\\wpfapp1\\dent3dviewercontroller.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application2\\TUIO Folder\\WpfApp1\\MainWindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{83F18314-A320-4148-A5A5-D8FD091FC407}|TUIO_DEMO.csproj|C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application\\TUIO Folder\\TUIO11_NET\\osc.net\\oscmessage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{83F18314-A320-4148-A5A5-D8FD091FC407}|TUIO_DEMO.csproj|solutionrelative:osc.net\\oscmessage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application2\\TUIO Folder\\WpfApp1\\dent3DviewerController.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application2\\TUIO Folder\\WpfApp1\\dent3DviewerController.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application2\\TUIO Folder\\WpfApp1\\MainWindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -43,7 +51,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 14,
+          "SelectedChildIndex": 13,
           "Children": [
             {
               "$type": "Bookmark",
@@ -79,20 +87,19 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "dent3DviewerController.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application\\TUIO Folder\\WpfApp1\\dent3DviewerController.xaml.cs",
-              "RelativeDocumentMoniker": "..\\WpfApp1\\dent3DviewerController.xaml.cs",
-              "ToolTip": "C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application\\TUIO Folder\\WpfApp1\\dent3DviewerController.xaml.cs",
-              "RelativeToolTip": "..\\WpfApp1\\dent3DviewerController.xaml.cs",
-              "ViewState": "AQIAAA8AAAAAMDMzMzPjvxgAAAAcAAAA",
+              "DocumentIndex": 2,
+              "Title": "TuioDemo.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application\\TUIO Folder\\TUIO11_NET\\TuioDemo.cs",
+              "RelativeDocumentMoniker": "TuioDemo.cs",
+              "ToolTip": "C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application\\TUIO Folder\\TUIO11_NET\\TuioDemo.cs [Design]",
+              "RelativeToolTip": "TuioDemo.cs [Design]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-04T00:15:15.452Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-12-16T08:32:53.738Z",
+              "EditorCaption": " [Design]"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 7,
               "Title": "dent3DviewerController.xaml",
               "DocumentMoniker": "C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application\\TUIO Folder\\WpfApp1\\dent3DviewerController.xaml",
               "RelativeDocumentMoniker": "..\\WpfApp1\\dent3DviewerController.xaml",
@@ -104,14 +111,13 @@
             {
               "$type": "Document",
               "DocumentIndex": 5,
-              "Title": "OSCMessage.cs",
-              "DocumentMoniker": "C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application\\TUIO Folder\\TUIO11_NET\\OSC.NET\\OSCMessage.cs",
-              "RelativeDocumentMoniker": "OSC.NET\\OSCMessage.cs",
-              "ToolTip": "C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application\\TUIO Folder\\TUIO11_NET\\OSC.NET\\OSCMessage.cs",
-              "RelativeToolTip": "OSC.NET\\OSCMessage.cs",
-              "ViewState": "AQIAACIAAAAAAAAAAAAowCcAAAAbAAAA",
+              "Title": "MainWindow.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application2\\TUIO Folder\\WpfApp1\\MainWindow.xaml.cs",
+              "RelativeDocumentMoniker": "..\\..\\..\\Interactive-Dental-Application2\\TUIO Folder\\WpfApp1\\MainWindow.xaml.cs",
+              "ToolTip": "C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application2\\TUIO Folder\\WpfApp1\\MainWindow.xaml.cs",
+              "RelativeToolTip": "..\\..\\..\\Interactive-Dental-Application2\\TUIO Folder\\WpfApp1\\MainWindow.xaml.cs",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-04T02:14:42.655Z"
+              "WhenOpened": "2024-11-03T10:29:07.304Z"
             },
             {
               "$type": "Document",
@@ -121,9 +127,47 @@
               "RelativeDocumentMoniker": "OSC.NET\\OSCBundle.cs",
               "ToolTip": "C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application\\TUIO Folder\\TUIO11_NET\\OSC.NET\\OSCBundle.cs",
               "RelativeToolTip": "OSC.NET\\OSCBundle.cs",
-              "ViewState": "AQIAABwAAAAAAAAAAAAnwCYAAAAaAAAA",
+              "ViewState": "AQIAAB0AAAAAAAAAAAAQwCYAAAAaAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-11-03T22:39:29.308Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "TuioDemo.cs",
+              "DocumentMoniker": "C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application\\TUIO Folder\\TUIO11_NET\\TuioDemo.cs",
+              "RelativeDocumentMoniker": "TuioDemo.cs",
+              "ToolTip": "C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application\\TUIO Folder\\TUIO11_NET\\TuioDemo.cs",
+              "RelativeToolTip": "TuioDemo.cs",
+              "ViewState": "AQIAAFYGAAAAAAAAAAAYwHwGAAA6AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-02T18:52:55.932Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "dent3DviewerController.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application\\TUIO Folder\\WpfApp1\\dent3DviewerController.xaml.cs",
+              "RelativeDocumentMoniker": "..\\WpfApp1\\dent3DviewerController.xaml.cs",
+              "ToolTip": "C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application\\TUIO Folder\\WpfApp1\\dent3DviewerController.xaml.cs",
+              "RelativeToolTip": "..\\WpfApp1\\dent3DviewerController.xaml.cs",
+              "ViewState": "AQIAAH0AAAAAl5mZmZkjwIEAAABIAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-04T00:15:15.452Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "app.config",
+              "DocumentMoniker": "C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application\\TUIO Folder\\TUIO11_NET\\app.config",
+              "RelativeDocumentMoniker": "app.config",
+              "ToolTip": "C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application\\TUIO Folder\\TUIO11_NET\\app.config",
+              "RelativeToolTip": "app.config",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAMAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000601|",
+              "WhenOpened": "2024-12-18T18:47:12.982Z"
             },
             {
               "$type": "Document",
@@ -138,7 +182,19 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 9,
+              "Title": "OSCMessage.cs",
+              "DocumentMoniker": "C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application\\TUIO Folder\\TUIO11_NET\\OSC.NET\\OSCMessage.cs",
+              "RelativeDocumentMoniker": "OSC.NET\\OSCMessage.cs",
+              "ToolTip": "C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application\\TUIO Folder\\TUIO11_NET\\OSC.NET\\OSCMessage.cs",
+              "RelativeToolTip": "OSC.NET\\OSCMessage.cs",
+              "ViewState": "AQIAACIAAAAAAAAAAAAowCcAAAAbAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-04T02:14:42.655Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
               "Title": "MainWindow.xaml",
               "DocumentMoniker": "C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application2\\TUIO Folder\\WpfApp1\\MainWindow.xaml",
               "RelativeDocumentMoniker": "..\\..\\..\\Interactive-Dental-Application2\\TUIO Folder\\WpfApp1\\MainWindow.xaml",
@@ -149,20 +205,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "TuioDemo.cs",
-              "DocumentMoniker": "C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application\\TUIO Folder\\TUIO11_NET\\TuioDemo.cs",
-              "RelativeDocumentMoniker": "TuioDemo.cs",
-              "ToolTip": "C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application\\TUIO Folder\\TUIO11_NET\\TuioDemo.cs",
-              "RelativeToolTip": "TuioDemo.cs",
-              "ViewState": "AQIAAJoEAAAAAAAAAAAowKIEAAAZAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-02T18:52:55.932Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 10,
               "Title": "dent3DviewerController.xaml.cs",
               "DocumentMoniker": "C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application2\\TUIO Folder\\WpfApp1\\dent3DviewerController.xaml.cs",
               "RelativeDocumentMoniker": "..\\..\\..\\Interactive-Dental-Application2\\TUIO Folder\\WpfApp1\\dent3DviewerController.xaml.cs",
@@ -174,7 +217,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 11,
               "Title": "dent3DviewerController.xaml",
               "DocumentMoniker": "C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application2\\TUIO Folder\\WpfApp1\\dent3DviewerController.xaml",
               "RelativeDocumentMoniker": "..\\..\\..\\Interactive-Dental-Application2\\TUIO Folder\\WpfApp1\\dent3DviewerController.xaml",
@@ -182,18 +225,6 @@
               "RelativeToolTip": "..\\..\\..\\Interactive-Dental-Application2\\TUIO Folder\\WpfApp1\\dent3DviewerController.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
               "WhenOpened": "2024-11-02T18:54:08.874Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "MainWindow.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application2\\TUIO Folder\\WpfApp1\\MainWindow.xaml.cs",
-              "RelativeDocumentMoniker": "..\\..\\..\\Interactive-Dental-Application2\\TUIO Folder\\WpfApp1\\MainWindow.xaml.cs",
-              "ToolTip": "C:\\Users\\Administrator\\source\\repos\\Interactive-Dental-Application2\\TUIO Folder\\WpfApp1\\MainWindow.xaml.cs",
-              "RelativeToolTip": "..\\..\\..\\Interactive-Dental-Application2\\TUIO Folder\\WpfApp1\\MainWindow.xaml.cs",
-              "ViewState": "AQIAAAUAAAAAMzMzMzMbwAwAAAAgAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-03T10:29:07.304Z"
             }
           ]
         },

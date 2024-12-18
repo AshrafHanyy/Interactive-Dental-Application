@@ -1003,36 +1003,36 @@ public class TuioDemo : Form, TuioListener
                 if (FlagExecuted == 0)
                 {
                     //"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\bin\Debug\Crown Dental APP\2d illustrations\Anterior three quarter crown.png"
-                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Inlay.stl", @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Inlay.png");
+                    Initialize3DViewer(@"./3D_viewer/Inlay.stl", @"./Crown Dental APP/2d illustrations/Inlay.png");
                     FlagExecuted = 1;
                 }
                 break;
             case 3:
                 if (MenuSelectedIndex == 0 && FlagExecuted == 0)
                 {
-                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\All ceramic crown preparation.stl", @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\All ceramic crown preparation.png");
+                    Initialize3DViewer(@"./3D_viewer/All ceramic crown preparation.stl", @"./Crown Dental APP/2d illustrations/All ceramic crown preparation.png");
                     FlagExecuted = 1;
                 }
                 else if (MenuSelectedIndex == 1 && FlagExecuted == 0)
                 {
-                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Full veneer crown preparation.stl", @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Full veneer crown.png");
+                    Initialize3DViewer(@"./3D_viewer/Full veneer crown preparation.stl", @"./Crown Dental APP/2d illustrations/Full veneer crown.png");
                     FlagExecuted = 1;
                 }
                 break;
             case 4:
                 if (MenuSelectedIndex == 0 && FlagExecuted == 0)
                 {
-                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Anterior Three quarter crown preparation.stl", @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Anterior three quarter crown.png");
+                    Initialize3DViewer(@"./3D_viewer/Anterior Three quarter crown preparation.stl", @"./Crown Dental APP/2d illustrations/Anterior three quarter crown.png");
                     FlagExecuted = 1;
                 }
                 else if (MenuSelectedIndex == 1 && FlagExecuted == 0)
                 {
-                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Pin modified three-quarter crown preparation.stl", @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Pin-Modified three quarter crown.png");
+                    Initialize3DViewer(@"./3D_viewer/Pin modified three-quarter crown preparation.stl", @"./Crown Dental APP/2d illustrations/Pin-Modified three quarter crown.png");
                     FlagExecuted = 1;
                 }
                 else if (MenuSelectedIndex == 2 && FlagExecuted == 0)
                 {
-                    Initialize3DViewer(@"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Seven-eighth crown preparation.stl", @"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\WpfApp1\obj\Debug\Seven-eighth Crown.png");
+                    Initialize3DViewer(@"./3D_viewer/Seven-eighth crown preparation.stl", @"./Crown Dental APP/2d illustrations/Seven-eighth Crown.png");
                     FlagExecuted = 1;
 
                 }
@@ -1184,7 +1184,10 @@ public class TuioDemo : Form, TuioListener
 
     public void back()
     {
-        //FlagExecuted = 0;
+        if (!hand_gesture)
+        {
+            FlagExecuted = 0;
+        }
         Console.WriteLine(FlagExecuted);
         switch (SelectedMenuFlag)
         {
