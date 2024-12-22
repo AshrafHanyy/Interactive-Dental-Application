@@ -67,6 +67,11 @@ public class TuioDemo : Form, TuioListener
     SolidBrush objBrush = new SolidBrush(Color.Silver);
     SolidBrush blbBrush = new SolidBrush(Color.FromArgb(64, 64, 64));
     Pen curPen = new Pen(new SolidBrush(Color.Blue), 1);
+<<<<<<< Updated upstream
+=======
+    string message = string.Empty;
+    private bool hand_gesture = false;
+>>>>>>> Stashed changes
 
     List<Point> mymenupoints = new List<Point>();
   
@@ -122,6 +127,14 @@ public class TuioDemo : Form, TuioListener
         client.addTuioListener(this);
         
         client.connect();
+<<<<<<< Updated upstream
+=======
+        Task.Run(async () => await ReceivePredictionsAsync()); // need to be called
+        // Start the YOLO thread
+        //ConnectToServer();
+
+        StartYoloThread();
+>>>>>>> Stashed changes
     }
 
     private void TuioDemo_Load(object sender, EventArgs e)
@@ -604,7 +617,143 @@ public class TuioDemo : Form, TuioListener
 
     /*    private async Task<string> getTeethData(string symbolId)
         {
+<<<<<<< Updated upstream
             try
+=======
+
+            case 0://if you're at the first menu 
+                if (MenuSelectedIndex == 0) //if you select the first option [EXTRACORONAL RESTORRATIONS]
+                {
+                    CountMenuItems = 2;
+                    SelectedMenuFlag = 1; // index of the new menu you're at
+
+                }
+                else if (MenuSelectedIndex == 1) //if you select the second option  [Interacrooanl RESTORRATIONS]
+                {
+
+                    CountMenuItems = 1;
+                    SelectedMenuFlag = 2;
+                    imagePaths = new List<string>{
+                                                    @"./Crown Dental APP/2d illustrations/Inlay.png",
+                                                        };
+                }
+                ActivateDelay();
+                break;
+            case 1:
+                if (MenuSelectedIndex == 0) //if you select the first option  [FULL COVERGE]
+                {
+                    CountMenuItems = 2;
+                    SelectedMenuFlag = 3; // index of the new menu you're at
+                    imagePaths = new List<string>{
+                                                          @"./Crown Dental APP/2d illustrations/All ceramic crown preparation.png",
+                                                        @"./Crown Dental APP/2d illustrations/Full veneer crown.png",
+                                                        };
+                }
+                else if (MenuSelectedIndex == 1) //if you select the second option [Partial COVERGE]
+                {
+
+                    CountMenuItems = 3;
+                    SelectedMenuFlag = 4;
+                    imagePaths = new List<string>{
+                                                        @"./Crown Dental APP/2d illustrations/Anterior three quarter crown.png",
+                                                        @"./Crown Dental APP/2d illustrations/Pin-Modified three quarter crown.png",
+                                                        @"./Crown Dental APP/2d illustrations/Seven-eighth Crown.png",
+                                                        };
+                }
+                ActivateDelay();
+                break;
+            case 2:
+                if (FlagExecuted == 0)
+                {
+                    //"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\bin\Debug\Crown Dental APP\2d illustrations\Anterior three quarter crown.png"
+                    Initialize3DViewer(@"./3D_viewer/Inlay.stl", @"./Crown Dental APP/2d illustrations/Inlay.png");
+                    FlagExecuted = 1;
+                }
+                break;
+            case 3:
+                if (MenuSelectedIndex == 0 && FlagExecuted == 0)
+                {
+                    Initialize3DViewer(@"./3D_viewer/All ceramic crown preparation.stl", @"./Crown Dental APP/2d illustrations/All ceramic crown preparation.png");
+                    FlagExecuted = 1;
+                }
+                else if (MenuSelectedIndex == 1 && FlagExecuted == 0)
+                {
+                    Initialize3DViewer(@"./3D_viewer/Full veneer crown preparation.stl", @"./Crown Dental APP/2d illustrations/Full veneer crown.png");
+                    FlagExecuted = 1;
+                }
+                break;
+            case 4:
+                if (MenuSelectedIndex == 0 && FlagExecuted == 0)
+                {
+                    Initialize3DViewer(@"./3D_viewer/Anterior Three quarter crown preparation.stl", @"./Crown Dental APP/2d illustrations/Anterior three quarter crown.png");
+                    FlagExecuted = 1;
+                }
+                else if (MenuSelectedIndex == 1 && FlagExecuted == 0)
+                {
+                    Initialize3DViewer(@"./3D_viewer/Pin modified three-quarter crown preparation.stl", @"./Crown Dental APP/2d illustrations/Pin-Modified three quarter crown.png");
+                    FlagExecuted = 1;
+                }
+                else if (MenuSelectedIndex == 2 && FlagExecuted == 0)
+                {
+                    Initialize3DViewer(@"./3D_viewer/Seven-eighth crown preparation.stl", @"./Crown Dental APP/2d illustrations/Seven-eighth Crown.png");
+                    FlagExecuted = 1;
+
+                }
+                break;
+        }
+    }
+
+    private void TuioDemo_Paint(object sender, PaintEventArgs e)
+    {
+        DrawDubb(this.CreateGraphics());
+    }
+
+
+    private void check_selection()
+    {
+        Console.WriteLine($"Selected menu flag = {SelectedMenuFlag}");
+        Console.WriteLine($"Menu selected index = {MenuSelectedIndex}");
+        switch (SelectedMenuFlag) // which menu are you're at
+        {
+            case 0://if you're at the first menu 
+
+                break;
+            case 1:
+                CountMenuItems = 2;
+                SelectedMenuFlag = 0;
+                imagePaths = new List<string>{
+                                                          @"./Crown Dental APP/2d illustrations/All ceramic crown preparation.png",
+                                                        @"./Crown Dental APP/2d illustrations/Full veneer crown.png",
+                                                        };
+                ActivateDelay();
+                break;
+            case 2:
+                CountMenuItems = 2;
+                SelectedMenuFlag = 0;
+                ActivateDelay();
+                break;
+            case 3:
+                CountMenuItems = 2;
+                SelectedMenuFlag = 1;
+                ActivateDelay();
+                break;
+            case 4:
+                CountMenuItems = 2;
+                SelectedMenuFlag = 1;
+                ActivateDelay();
+                break;
+        }
+    }
+    private bool flagFirst = false;
+    private async Task ReceivePredictionsAsync()
+    {
+        hand_gesture = false;
+        try
+        {
+            //hand_gesture flag need to be set to 1 when opening python server
+            Console.WriteLine("Trying to connect");
+            using (TcpClient client = new TcpClient("localhost", 65434))
+>>>>>>> Stashed changes
             {
                 using (TcpClient client = new TcpClient("localhost", 5000))
                 {
@@ -955,6 +1104,103 @@ public class TuioDemo : Form, TuioListener
         this.mainMenuButton.Dispose();
     }
 
+<<<<<<< Updated upstream
+=======
+            try
+            {
+                // Allow immediate reuse of the port
+                listener = new TcpListener(System.Net.IPAddress.Parse("127.0.0.1"), 4001);
+                listener.Server.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+
+                listener.Start();
+                Console.WriteLine("Server started. Waiting for YOLO client to connect...");
+
+                while (!stopYoloThread)
+                {
+                    // Accept a client connection
+                    using (TcpClient client = listener.AcceptTcpClient())
+                    {
+
+                        yoloThread.IsBackground = true;
+                        Console.WriteLine("YOLO client connected.");
+                        if (form2flag == 0)
+                        {
+                            this.Invoke(new Action(() =>
+                            {
+                                this.Hide(); // Close the current form
+
+                                Console.WriteLine($"Form1 queue hash: {yoloCommands.GetHashCode()}");
+                                // Open the new form
+                                mohsen.Form2 form2 = new mohsen.Form2(this, yoloCommands);
+                                form2.Show();
+                            }));
+                            form2flag = 1;
+                        }
+
+                        // Close the current form
+                        using (NetworkStream stream = client.GetStream())
+                        using (StreamReader reader = new StreamReader(stream))
+                        {
+                            while (!stopYoloThread)
+                            {
+                                try
+                                {
+                                    // Read commands sent by YOLO client
+                                    string command = reader.ReadLine();
+                                    if (!string.IsNullOrEmpty(command))
+                                    {
+                                        Console.WriteLine($"Received: {command}");
+                                        yoloCommands.Enqueue(command);
+                                    }
+                                }
+                                catch (IOException ioEx)
+                                {
+                                    Console.WriteLine($"Connection error: {ioEx.Message}");
+                                    break; // Break if client disconnects
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Server error: {ex.Message}");
+            }
+            finally
+            {
+                listener?.Stop();
+                Console.WriteLine("Server stopped.");
+            }
+        });
+        yoloThread.IsBackground = true;
+        yoloThread.Start();
+    }
+
+
+    void DrawScene(Graphics g)
+    {
+        g.Clear(Color.DarkKhaki);
+        Pen p = new Pen(Color.MintCream, 5);
+        Pen pp = new Pen(Color.Black, 1);
+        Pen ppp = new Pen(Color.Orange, 1);
+        // g.DrawLine(p, c2.XC - c2.Rad, c2.YC, c1.XC + c1.Rad, c1.YC);
+        // g.DrawLine(p, c.XC, c.YC - c.Rad, c3.XC, c3.YC + c3.Rad);
+        g.DrawImage(backgroundImage2, new Rectangle(0, 0, width, height));
+        g.DrawImage(adminImage, new Rectangle(10, 10, 100, 100));
+
+    }
+
+    System.Windows.Forms.Timer YOLOTimer = new System.Windows.Forms.Timer();
+    public int cttick = 0;
+
+
+    private void StopYoloThread()
+    {
+        stopYoloThread = true;
+        yoloThread.Join();
+    }
+>>>>>>> Stashed changes
     public bool AreObjectsIntersecting(TuioObject obj1, TuioObject obj2)
     {
         int obj1X = obj1.getScreenX(width);
