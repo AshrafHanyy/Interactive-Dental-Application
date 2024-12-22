@@ -443,8 +443,10 @@ public class TuioDemo : Form, TuioListener
                         break;
                     }
 
-                    string receivedMessage = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                    string receivedMessage = string.Empty; // Initialize as an empty string to avoid null
+                    receivedMessage = Encoding.UTF8.GetString(buffer, 0, bytesRead);
                     UpdateEmotionLabel(receivedMessage);
+
                 }
             }
             catch (Exception ex)
@@ -476,6 +478,12 @@ public class TuioDemo : Form, TuioListener
 
     private void UpdateEmotionLabel(string emotion)
     {
+        if (lblEmotion == null)
+        {
+            lblEmotion = new Label(); 
+            lblEmotion.Text = string.Empty;
+        }
+
         if (lblEmotion.InvokeRequired)
         {
             lblEmotion.Invoke(new Action(() => lblEmotion.Text = $"Emotion: {emotion}"));
