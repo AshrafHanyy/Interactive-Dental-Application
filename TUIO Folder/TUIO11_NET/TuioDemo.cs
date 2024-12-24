@@ -43,6 +43,9 @@ using System.Windows.Media.Media3D;
 using System.Windows.Threading;
 using System.Collections.Concurrent;
 using System.Media;
+using System.Linq;
+using System.Net;
+using System.Runtime.Remoting.Contexts;
 
 public class TuioDemo : Form, TuioListener
 {
@@ -86,7 +89,7 @@ public class TuioDemo : Form, TuioListener
     SolidBrush blbBrush = new SolidBrush(Color.FromArgb(64, 64, 64));
     Pen curPen = new Pen(new SolidBrush(Color.Blue), 1);
     string message = string.Empty;
-    private bool hand_gesture = true;
+    private bool hand_gesture = false;
 
     List<Point> mymenupoints = new List<Point>();
 
@@ -104,6 +107,19 @@ public class TuioDemo : Form, TuioListener
     private Label lblEmotionStatus;
     private Label lblEmotion;
     // --------------------- END JOHN WORK ---------------------
+    // --------------------- START AKL WORK ---------------------
+    List<int> context  = new List<int>();
+    List<String> devices = new List<String>();
+    string progress = "";
+    string device_name = "";
+    string device_mac = "";
+    string user_role = "";
+    string Action = "";
+    
+
+
+
+    // --------------------- END AKL WORK ---------------------
 
 
     public class CActor
@@ -314,6 +330,13 @@ public class TuioDemo : Form, TuioListener
 
     private void TuioDemo_Load(object sender, EventArgs e)
     {
+        context.Add(0);
+        context.Add(0);
+        context.Add(0);
+        context.Add(0);
+        context.Add(0);
+        context.Add(0);
+
         /*        string audiofilepath = ("01 - Track 01.mp3");
                 PlayBackgroundMusic(audiofilepath);*/
         off = new Bitmap(this.ClientSize.Width, this.ClientSize.Height);
@@ -718,15 +741,22 @@ public class TuioDemo : Form, TuioListener
     public int MenuSelectedIndex = 0; //item selection
     public int FlagExecuted = 0;
     List<CActor> MenuObjs = new List<CActor>();
-    public void DrawRoundedRectangle(Graphics g, bool isSelected, Rectangle rect, int radius, int index)
+    public void DrawRoundedRectangle(Graphics g, int isSelected, Rectangle rect, int radius, int index)
     {
         using (GraphicsPath path = CreateRoundedRectanglePath(rect, radius))
         {
             g.FillPath(MenuItemBrush, path);
             // Draw the rounded rectangle background
-            if (isSelected)
+            if (isSelected == 1)
             {
                 using (Pen redPen = new Pen(Color.Red, 5)) // Adjust thickness as needed
+                {
+                    g.DrawPath(redPen, path);
+                }
+            }
+            if (isSelected == 2)
+            {
+                using (Pen redPen = new Pen(Color.Blue, 5)) // Adjust thickness as needed
                 {
                     g.DrawPath(redPen, path);
                 }
@@ -882,49 +912,75 @@ public class TuioDemo : Form, TuioListener
 
             // Define text based on menu item
             string itemText = "";
-            DrawRoundedRectangle(g, (menuobjs[i].color == 0) ? false : true, rect, cornerRadius, i);
             switch (SelectedMenuFlag)
             {
                 case 0:
 
                     itemText = (i == 0) ? "Extracoronal \r\n restorations" : "Intracoronal \r\n restorations";
+                    if(i==0)
+                    {
+                        menuobjs[i].color = (menuobjs[i].color != 1 && context[1] == 1 && context[2] == 1 && context[3] == 1 && context[4] == 1 && context[5] == 1) ? 2 : menuobjs[i].color;
+                    }
+                    else
+                    {
+                        menuobjs[i].color = (menuobjs[i].color != 1 && context[0]==1) ? 2 : menuobjs[i].color;
+                    }
                     drawTextBelow = false;
                     break;
                 case 1:
 
                     itemText = (i == 0) ? "Full \r\n Coverage" : "Partial \r\n Coverage";
+                    if (i == 0)
+                    {
+                        menuobjs[i].color = (menuobjs[i].color != 1 && context[1] == 1 && context[2] == 1) ? 2 : menuobjs[i].color;
+                    }
+                    else
+                    {
+                        menuobjs[i].color = (menuobjs[i].color != 1 && context[3] == 1 && context[4] == 1 && context[5] == 1) ? 2 : menuobjs[i].color;
+                    }
                     drawTextBelow = false;
                     break;
                 case 2:
 
                     itemText = "Inlay \r\n restoration";
+                    menuobjs[i].color = (context[0] == 1) ? 2 : menuobjs[i].color;
                     break;
                 case 3:
 
                     itemText = (i == 0) ? "All \r\n Ceramic" : "Full \r\n veneer";
+                    if (i == 0)
+                    {
+                        menuobjs[i].color = (menuobjs[i].color != 1 && context[1] == 1) ? 2 : menuobjs[i].color;
+                    }
+                    else
+                    {
+                        menuobjs[i].color = (menuobjs[i].color != 1 && context[2] == 1) ? 2 : menuobjs[i].color;
+                    }
                     break;
                 case 4:
 
                     if (i == 0)
                     {
                         itemText = "Three Quarter";
+                        menuobjs[i].color = (menuobjs[i].color != 1 && context[3] == 1) ? 2 : menuobjs[i].color;
                     }
                     else if (i == 1)
                     {
 
-                        itemText = "Pin Modified"; 
-                        
+                        itemText = "Pin Modified";
+                        menuobjs[i].color = (menuobjs[i].color != 1 && context[4] == 1) ? 2 : menuobjs[i].color;
                     }
                     else
                     {
                         itemText = "Seven Eighth";
-
+                        menuobjs[i].color = (menuobjs[i].color != 1 && context[5] == 1) ? 2 : menuobjs[i].color;
                     }
                     break;
                 default:
                     //DrawRoundedRectangle(g, (menuobjs[i].color == 0) ? MenuItemBrush : SelectedItemBrush, rect, cornerRadius, i);
                     break;
             }
+            DrawRoundedRectangle(g, menuobjs[i].color, rect, cornerRadius, i);
 
 
 
@@ -1013,6 +1069,7 @@ public class TuioDemo : Form, TuioListener
                     //"C:\Users\Administrator\source\repos\Interactive-Dental-Application\TUIO Folder\TUIO11_NET\bin\Debug\Crown Dental APP\2d illustrations\Anterior three quarter crown.png"
                     Initialize3DViewer(@"./3D_viewer/Inlay.stl", @"./Crown Dental APP/2d illustrations/Inlay.png");
                     FlagExecuted = 1;
+                    context[0] = 1;
                 }
                 break;
             case 3:
@@ -1020,11 +1077,13 @@ public class TuioDemo : Form, TuioListener
                 {
                     Initialize3DViewer(@"./3D_viewer/All ceramic crown preparation.stl", @"./Crown Dental APP/2d illustrations/All ceramic crown preparation.png");
                     FlagExecuted = 1;
+                    context[1] = 1;
                 }
                 else if (MenuSelectedIndex == 1 && FlagExecuted == 0)
                 {
                     Initialize3DViewer(@"./3D_viewer/Full veneer crown preparation.stl", @"./Crown Dental APP/2d illustrations/Full veneer crown.png");
                     FlagExecuted = 1;
+                    context[2] = 1;
                 }
                 break;
             case 4:
@@ -1032,17 +1091,19 @@ public class TuioDemo : Form, TuioListener
                 {
                     Initialize3DViewer(@"./3D_viewer/Anterior Three quarter crown preparation.stl", @"./Crown Dental APP/2d illustrations/Anterior three quarter crown.png");
                     FlagExecuted = 1;
+                    context[3] = 1;
                 }
                 else if (MenuSelectedIndex == 1 && FlagExecuted == 0)
                 {
                     Initialize3DViewer(@"./3D_viewer/Pin modified three-quarter crown preparation.stl", @"./Crown Dental APP/2d illustrations/Pin-Modified three quarter crown.png");
                     FlagExecuted = 1;
+                    context[4] = 1;
                 }
                 else if (MenuSelectedIndex == 2 && FlagExecuted == 0)
                 {
                     Initialize3DViewer(@"./3D_viewer/Seven-eighth crown preparation.stl", @"./Crown Dental APP/2d illustrations/Seven-eighth Crown.png");
                     FlagExecuted = 1;
-
+                    context[5] = 1;
                 }
                 break;
         }
@@ -1092,7 +1153,7 @@ public class TuioDemo : Form, TuioListener
     private bool flagFirst = false;
     private async Task ReceivePredictionsAsync()
     {
-        hand_gesture = true;
+        //hand_gesture = true;
         try
         {
             //hand_gesture flag need to be set to 1 when opening python server
@@ -1691,6 +1752,7 @@ public class TuioDemo : Form, TuioListener
                 System.Environment.Exit(0);
                 break;
         }
+
         TuioDemo app = new TuioDemo(port);
         Application.Run(app);
     }
