@@ -115,7 +115,173 @@ public class TuioDemo : Form, TuioListener
     string device_mac = "";
     string user_role = "";
     string Action = "";
-    
+    void HandleClient(Socket clientSocket)
+    {
+        try
+        {
+            Console.WriteLine("Client connected.");
+
+            // Buffer to store the received data
+            byte[] buffer = new byte[1024];
+            int receivedBytes;
+
+            // Loop to handle communication
+            while ((receivedBytes = clientSocket.Receive(buffer)) > 0)
+            {
+                // Decode message from client
+                string receivedMessage = Encoding.UTF8.GetString(buffer, 0, receivedBytes);
+                string[] parts = receivedMessage.Split(',');
+                string action = parts[0];
+                //List<string> restOfParts = parts.Skip(1).ToList();
+                switch (action)
+                {
+                    case "devices":
+                        devices = parts.Skip(1).ToList();
+                        break;
+                    case "logged":
+                        device_name = parts[1];
+                        device_mac = parts[2];
+                        user_role = parts[3];
+                        progress = parts[4];
+                        mainmenuflag = checkmainmenu();
+                        if (mainmenuflag == 2)
+                        {
+                            this.Controls.Remove(mainMenuButton);
+                            this.mainMenuButton.Dispose();
+                        }
+                        break;
+                }
+                Console.WriteLine($"Received: {receivedMessage}");
+
+                // Example processing: Echo the message back to the client
+                string response = $"Server received: {receivedMessage}";
+                clientSocket.Send(Encoding.UTF8.GetBytes(response));
+                Console.WriteLine($"Response sent: {response}");
+            }
+        }
+        catch (SocketException ex)
+        {
+            Console.WriteLine($"SocketException: {ex.Message}");
+        }
+        finally
+        {
+            clientSocket.Close();
+            Console.WriteLine("Client disconnected.");
+        }
+    }
+    void in_Main(string[] args)
+    {
+        // Server configuration
+        string ipAddress = "127.0.0.1"; // Localhost
+        int port = 5000;
+
+        // Create a TCP socket
+        Socket serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+        try
+        {
+            // Bind the socket to the IP and port
+            serverSocket.Bind(new IPEndPoint(IPAddress.Parse(ipAddress), port));
+            serverSocket.Listen(5); // Max pending connections
+
+            Console.WriteLine($"Server started on {ipAddress}:{port}");
+            Console.WriteLine("Waiting for connections...");
+
+            // Accept and handle clients in a loop
+            while (true)
+            {
+                Socket clientSocket = serverSocket.Accept();
+                Thread clientThread = new Thread(() => HandleClient(clientSocket));
+                clientThread.Start();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Exception: {ex.Message}");
+        }
+        finally
+        {
+            serverSocket.Close();
+            Console.WriteLine("Server stopped.");
+        }
+    }
+
+    private void TestSocketConnection()
+    {
+        string serverIp = "127.0.0.1";
+        int serverPort = 65434;
+
+        while (true)
+        {
+            try
+            {
+                Console.WriteLine("Attempting to connect to server...");
+                using (TcpClient client = new TcpClient(serverIp, serverPort))
+                using (NetworkStream stream = client.GetStream())
+                {
+                    Console.WriteLine("Connected to server!");
+
+                    while (true)
+                    {
+                        Console.Write("Enter message to send (type 'exit' to close): ");
+                        //string message = Console.ReadLine();
+
+                        String message = "test";
+                        if (string.IsNullOrWhiteSpace(message))
+                            continue;
+
+                        if (message.ToLower() == "exit")
+                        {
+                            Console.WriteLine("Closing connection...");
+                            break;
+                        }
+                        // Send message
+                        byte[] data = Encoding.UTF8.GetBytes(message);
+                        stream.Write(data, 0, data.Length);
+                        Console.WriteLine($"Sent: {message}");
+
+                        // Receive response
+                        byte[] buffer = new byte[1024];
+                        int bytesRead = stream.Read(buffer, 0, buffer.Length);
+                        string response = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                        string[] parts = response.Split(',');
+                        string action = parts[0];
+                        //List<string> restOfParts = parts.Skip(1).ToList();
+                        switch (action)
+                        {
+                            case "devices":
+                                devices = parts.Skip(1).ToList();
+                                Console.WriteLine($"Sent: {devices[0]}");
+                                break;
+                            case "logged":
+                                device_name = parts[1];
+                                device_mac = parts[2];
+                                user_role = parts[3];
+                                progress = parts[4];
+                                mainmenuflag = checkmainmenu();
+                                if (mainmenuflag == 2)
+                                {
+                                    this.Controls.Remove(mainMenuButton);
+                                    this.mainMenuButton.Dispose();
+                                }
+                                break;
+                        }
+                        Console.WriteLine($"Received: {response}");
+                        Thread.Sleep(5000);
+                    }
+                    break; // Exit loop if connection was successful
+                }
+            }
+            catch (SocketException ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                Console.WriteLine("Retrying in 5 seconds...");
+                Thread.Sleep(5000); // Wait before retrying
+            }
+        }
+    }
+
+
 
 
 
@@ -348,6 +514,11 @@ public class TuioDemo : Form, TuioListener
         InitializeEmotionComponents(); // Initialize emotion UI
         ConnectToEmotionServer();     // Connect to the emotion server
         // --------------------- END JOHN WORK ---------------------
+        Thread socketTestThread = new Thread(TestSocketConnection)
+        {
+            IsBackground = true
+        };
+        socketTestThread.Start();
     }
 
     private void Form_KeyDown(object sender, System.Windows.Forms.KeyEventArgs e)
